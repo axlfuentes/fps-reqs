@@ -4,495 +4,99 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>AutoPerf 127 — Improvement Requirements</title>
+<title>FPS Requirements — AutoPerf 127 Dossiers</title>
 <style>
   :root{
     --bg:#0a0e14; --surface:#0e131c; --surface-2:#131b28; --raise:#18212f;
     --border:#26303f; --border-soft:#1c2532;
     --text:#d9e1ec; --muted:#8492a8; --faint:#5d6b82;
-    --cyan:#37d1d7; --green:#37d99a; --amber:#ffb03d; --red:#ff5b6e; --purple:#ab8cff; --pink:#f472b6;
-    --shadow:0 1px 0 rgba(255,255,255,.02), 0 12px 32px -18px rgba(0,0,0,.8);
+    --cyan:#37d1d7; --green:#37d99a; --gold:#e8b34a;
+    --shadow:0 1px 0 rgba(255,255,255,.02), 0 14px 34px -18px rgba(0,0,0,.85);
     --mono:ui-monospace,"Cascadia Code","JetBrains Mono",Menlo,Consolas,monospace;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
   }
   @media (prefers-color-scheme: light){
-    :root{ --bg:#eef1f6; --surface:#fff; --surface-2:#f6f8fb; --raise:#eef2f7; --border:#d3dbe6;
-      --border-soft:#e2e8f0; --text:#182234; --muted:#54617a; --faint:#8894a8;
-      --cyan:#0f9ba1; --green:#12996a; --amber:#b9761a; --red:#d33044; --purple:#6b4fd0; --pink:#c1508e;
-      --shadow:0 1px 2px rgba(20,30,50,.05), 0 12px 30px -20px rgba(20,30,50,.25); }
+    :root{ --bg:#eef1f6;--surface:#fff;--surface-2:#f6f8fb;--raise:#eef2f7;--border:#d3dbe6;
+      --border-soft:#e2e8f0;--text:#182234;--muted:#54617a;--faint:#8894a8;
+      --cyan:#0f9ba1;--green:#12996a;--gold:#a9791a;
+      --shadow:0 1px 2px rgba(20,30,50,.05), 0 14px 32px -20px rgba(20,30,50,.25); }
   }
-  :root[data-theme="dark"]{ --bg:#0a0e14;--surface:#0e131c;--surface-2:#131b28;--raise:#18212f;--border:#26303f;--border-soft:#1c2532;--text:#d9e1ec;--muted:#8492a8;--faint:#5d6b82;--cyan:#37d1d7;--green:#37d99a;--amber:#ffb03d;--red:#ff5b6e;--purple:#ab8cff;--pink:#f472b6;
-    --shadow:0 1px 0 rgba(255,255,255,.02), 0 12px 32px -18px rgba(0,0,0,.8); }
-  :root[data-theme="light"]{ --bg:#eef1f6;--surface:#fff;--surface-2:#f6f8fb;--raise:#eef2f7;--border:#d3dbe6;--border-soft:#e2e8f0;--text:#182234;--muted:#54617a;--faint:#8894a8;--cyan:#0f9ba1;--green:#12996a;--amber:#b9761a;--red:#d33044;--purple:#6b4fd0;--pink:#c1508e;
-    --shadow:0 1px 2px rgba(20,30,50,.05), 0 12px 30px -20px rgba(20,30,50,.25); }
+  :root[data-theme="dark"]{ --bg:#0a0e14;--surface:#0e131c;--surface-2:#131b28;--raise:#18212f;--border:#26303f;--border-soft:#1c2532;--text:#d9e1ec;--muted:#8492a8;--faint:#5d6b82;--cyan:#37d1d7;--green:#37d99a;--gold:#e8b34a; }
+  :root[data-theme="light"]{ --bg:#eef1f6;--surface:#fff;--surface-2:#f6f8fb;--raise:#eef2f7;--border:#d3dbe6;--border-soft:#e2e8f0;--text:#182234;--muted:#54617a;--faint:#8894a8;--cyan:#0f9ba1;--green:#12996a;--gold:#a9791a; }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased;font-size:15px}
-  .wrap{max-width:1120px;margin:0 auto;padding:0 22px 90px}
+  .wrap{max-width:940px;margin:0 auto;padding:0 22px 80px}
+  a{text-decoration:none;color:inherit}
   ::selection{background:var(--cyan);color:var(--bg)}
 
-  header.top{padding:52px 0 28px;border-bottom:1px solid var(--border);margin-bottom:30px}
+  header{padding:56px 0 26px;border-bottom:1px solid var(--border);margin-bottom:30px}
   .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);margin:0 0 14px}
-  h1{font-family:var(--mono);font-weight:700;font-size:clamp(27px,4.4vw,42px);line-height:1.05;margin:0 0 12px;letter-spacing:-.5px;text-wrap:balance}
+  h1{font-family:var(--mono);font-weight:700;font-size:clamp(28px,4.6vw,44px);line-height:1.05;margin:0 0 12px;letter-spacing:-.5px}
   h1 .dim{color:var(--faint)}
-  .lede{color:var(--muted);max-width:68ch;margin:0 0 20px;font-size:16px}
+  .lede{color:var(--muted);max-width:64ch;margin:0 0 20px;font-size:16px}
   .lede b{color:var(--text)}
   .chips{display:flex;flex-wrap:wrap;gap:8px}
   .chip{font-family:var(--mono);font-size:11.5px;padding:5px 10px;border:1px solid var(--border);border-radius:999px;color:var(--muted);background:var(--surface);white-space:nowrap}
   .chip b{color:var(--text)}
 
-  h2{font-family:var(--mono);font-size:12.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin:38px 0 4px;display:flex;align-items:center;gap:10px}
-  h2::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--accent,var(--cyan));box-shadow:0 0 10px var(--accent,var(--cyan))}
-  h2.a-data{--accent:var(--cyan)} h2.a-tbl{--accent:var(--green)} h2.a-anl{--accent:var(--amber)} h2.a-srch{--accent:var(--purple)} h2.a-cfg{--accent:var(--pink)}
-  .h2sub{color:var(--faint);font-size:13px;margin:0 0 18px}
+  .cards{display:grid;gap:16px}
+  .card{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;
+    background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px 24px;box-shadow:var(--shadow);
+    transition:border-color .15s, transform .15s}
+  .card:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+  .ico{font-size:34px;line-height:1;width:56px;height:56px;display:flex;align-items:center;justify-content:center;
+    background:var(--raise);border:1px solid var(--border);border-radius:12px}
+  .card h2{margin:0 0 4px;font-size:19px;letter-spacing:-.3px}
+  .card .num{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  .card p{margin:5px 0 0;color:var(--muted);font-size:13.5px;max-width:56ch}
+  .arw{font-family:var(--mono);color:var(--faint);font-size:22px;font-weight:700}
+  .card:hover .arw{color:var(--accent)}
+  .c-audit{--accent:var(--cyan)} .c-biz{--accent:var(--gold)} .c-req{--accent:var(--green)}
 
-  .req{background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden}
-  .req-head{display:flex;align-items:flex-start;gap:13px;padding:15px 18px 12px}
-  .num{font-family:var(--mono);font-weight:700;font-size:13px;min-width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:7px;background:var(--raise);color:var(--accent,var(--cyan));border:1px solid var(--border)}
-  .req.a-data .num{--accent:var(--cyan)} .req.a-tbl .num{--accent:var(--green)} .req.a-anl .num{--accent:var(--amber)} .req.a-srch .num{--accent:var(--purple)} .req.a-cfg .num{--accent:var(--pink)}
-  .req-title{flex:1;min-width:0}
-  .req-title h3{margin:0 0 3px;font-size:16px;letter-spacing:-.2px}
-  .req-title p{margin:0;color:var(--muted);font-size:13.5px}
-  .tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-  .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:5px;white-space:nowrap}
-  .t-new{background:color-mix(in srgb,var(--cyan) 16%,transparent);color:var(--cyan)}
-  .t-refine{background:color-mix(in srgb,var(--amber) 16%,transparent);color:var(--amber)}
-  .t-fix{background:color-mix(in srgb,var(--red) 16%,transparent);color:var(--red)}
-  .t-global{background:color-mix(in srgb,var(--green) 16%,transparent);color:var(--green)}
-  .t-meta{background:color-mix(in srgb,var(--faint) 20%,transparent);color:var(--muted)}
-  .eff{font-family:var(--mono);font-size:10px;color:var(--faint);white-space:nowrap}
+  @media(max-width:600px){.card{grid-template-columns:auto 1fr;padding:18px 18px}.arw{display:none}}
 
-  .shape{border-top:1px solid var(--border-soft);display:grid;grid-template-columns:1fr 1fr;gap:0}
-  @media(max-width:720px){.shape{grid-template-columns:1fr}}
-  .shape .col{padding:12px 18px 14px;min-width:0}
-  .shape .col.now{border-right:1px solid var(--border-soft)}
-  @media(max-width:720px){.shape .col.now{border-right:none;border-bottom:1px solid var(--border-soft)}}
-  .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 7px;display:flex;align-items:center;gap:6px}
-  .lbl.now{color:var(--faint)} .lbl.next{color:var(--green)}
-  .lbl.now::before{content:"●";color:var(--faint)} .lbl.next::before{content:"→";color:var(--green);font-weight:700}
-  pre{margin:0;font-family:var(--mono);font-size:11.5px;line-height:1.5;color:var(--text);background:var(--bg);border:1px solid var(--border-soft);border-radius:7px;padding:9px 11px;overflow-x:auto;white-space:pre}
-  pre .c{color:var(--faint)} pre .k{color:var(--pink)} pre .s{color:var(--green)} pre .n{color:var(--cyan)}
-  .prose{color:var(--muted);font-size:13px;margin:8px 0 0}
-  .prose b{color:var(--text)}
-  .prose code,.il{font-family:var(--mono);font-size:11.5px;background:var(--raise);padding:1px 5px;border-radius:4px;color:var(--text)}
-  .ref{font-family:var(--mono);font-size:10px;color:var(--faint);margin-top:7px}
-
-  .note{background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:10px;padding:13px 16px;margin:18px 0;font-size:13.5px;color:var(--muted)}
-  .note b{color:var(--text)}
-  .note ul{margin:8px 0 0;padding-left:20px}
-  .note li{margin:3px 0}
-  footer{margin-top:46px;padding-top:20px;border-top:1px solid var(--border);color:var(--faint);font-size:12px;font-family:var(--mono);display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
-  .legend{display:flex;flex-wrap:wrap;gap:12px;font-family:var(--mono);font-size:11px;color:var(--muted);margin:16px 0 4px}
+  footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--border);color:var(--faint);font-size:12px;font-family:var(--mono);display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header class="top">
-  <p class="eyebrow">Flight-Planning Systems · Product Backlog · 2026-07-09</p>
-  <h1>AutoPerf&nbsp;127 <span class="dim">— Improvement Requirements</span></h1>
-  <p class="lede">Fifteen enhancement points for the <b>P1+P2+P3 build</b>, each shown as <b>current shape → proposed change</b> with the real, verified code/UI it touches in <span class="il">autoperf_viewer_127.html</span>. Grouped by area; batched — more points to come.</p>
-  <div class="chips">
-    <span class="chip"><b>15</b> points · 2 batches</span>
-    <span class="chip">grounded in <b>autoperf_viewer_127.html</b></span>
-    <span class="chip">build: <b>· P1+P2+P3</b> · 2,137,975 B</span>
-    <span class="chip">line refs verified <b>2026-07-09</b></span>
-  </div>
-  <div class="legend">
-    <span><span class="tag t-new">new</span> feature</span>
-    <span><span class="tag t-refine">refine</span> existing</span>
-    <span><span class="tag t-fix">fix</span> correctness</span>
-    <span><span class="tag t-global">global</span> all tabs</span>
-    <span class="eff">effort: S / M / L</span>
-  </div>
-</header>
+  <header>
+    <p class="eyebrow">Flight-Planning Systems · Private</p>
+    <h1>FPS Requirements <span class="dim">— AutoPerf&nbsp;127 Dossiers</span></h1>
+    <p class="lede">Three companion analyses of the <b>AutoPerf 127</b> flight-planning-performance console (P1+P2+P3 build). Code logic &amp; requirements only — no flight data. Private.</p>
+    <div class="chips">
+      <span class="chip"><b>3</b> dossiers</span>
+      <span class="chip">build <b>· P1+P2+P3</b></span>
+      <span class="chip">updated <b>2026-07-09</b></span>
+    </div>
+  </header>
 
-<!-- ============ A. DATA & LOAD ============ -->
-<h2 class="a-data">A · Data ingestion &amp; load</h2>
-<p class="h2sub">How weeks of files come in, who the records belong to, and a new route dataset.</p>
+  <div class="cards">
+    <a class="card c-audit" href="audit.html">
+      <div class="ico">🛫</div>
+      <div><span class="num">01 · System Audit</span><h2>Audit &amp; High-Level Conclusions</h2>
+        <p>What the system is, the 93→127 data model, architecture &amp; data flow, and the P1/P2/P3 remediation roadmap — cross-checked against the Power BI model and Lessons-Learned KB.</p></div>
+      <div class="arw">→</div>
+    </a>
+    <a class="card c-biz" href="business.html">
+      <div class="ico">📈</div>
+      <div><span class="num">02 · Business Register</span><h2>Business Improvement Register</h2>
+        <p>Ten prioritized opportunities mined from the Glossary — missed/capped tankering, AOS compute-queue, the file-then-optimize gate, NORULE coverage, filing-quality — each with columns &amp; sizing.</p></div>
+      <div class="arw">→</div>
+    </a>
+    <a class="card c-req" href="backlog.html">
+      <div class="ico">🛠️</div>
+      <div><span class="num">03 · Improvement Requirements</span><h2>Improvement Backlog</h2>
+        <p>Fifteen enhancement points as <b>current-shape → proposed-change</b>, each grounded in verified code/line-refs from the build. Batched — more points to come.</p></div>
+      <div class="arw">→</div>
+    </a>
+  </div>
 
-<div class="req a-data">
-  <div class="req-head">
-    <div class="num">1</div>
-    <div class="req-title"><h3>Multi-week load</h3><p>Drop many weeks at once, not one 7-file week at a time.</p></div>
-    <div class="tags"><span class="tag t-refine">refine</span><span class="eff">S</span></div>
-  </div>
-  <div class="shape">
-    <div class="col now"><p class="lbl now">current shape</p>
-      <pre><span class="c">// loadFiles: sequential FileReader chain, yields the UI</span>
-<span class="c">// thread every 5 files; each file goes through smartMerge</span>
-<span class="c">// (per-flight dedupe/replace via workflowFingerprint):</span>
-<span class="k">if</span> (completed % <span class="n">5</span> === <span class="n">0</span>) { setTimeout(processNext, <span class="n">0</span>); }
-<span class="k">else</span> { processNext(); }</pre>
-      <p class="prose">There is <b>no 7-file cap</b> — the picker/drop is <code>multiple</code> and N files merge in one go. The "one week at a time" limit is workflow habit, not code.</p>
-      <p class="ref">loadFiles ~L4736 · yield ~L4797 · smartMerge ~L4829</p></div>
-    <div class="col"><p class="lbl next">proposed</p>
-      <pre>Confirmed: drop <span class="n">any number</span> of files (multiple
-weeks) in one gesture. Remaining work =
-<span class="n">validate at multi-week scale</span>: merge correctness
-across week boundaries + parse perf (~50k rows
-freezes the tab → chunked parse / Web Worker).</pre>
-      <p class="prose">Multi-day views already exist (Workforce weekly, Timeline date labels, dataDate range).</p></div>
-  </div>
-</div>
-
-<div class="req a-data">
-  <div class="req-head">
-    <div class="num">2</div>
-    <div class="req-title"><h3>Unlisted-user category rule</h3><p>Keep the <span class="il">QR DSP</span> default for unlisted users — except <span class="il">U</span>+digit IDs, which stay unassigned.</p></div>
-    <div class="tags"><span class="tag t-refine">refine</span><span class="eff">S</span></div>
-  </div>
-  <div class="shape">
-    <div class="col now"><p class="lbl now">current shape</p>
-      <pre><span class="c">// getDeptInfo (~L4581) and deptBadge (~L4587):</span>
-<span class="k">var</span> dep = userDeptMap[userId] || getUserDept(userId)
-  || <span class="s">'QR DSP'</span>;  <span class="c">// EVERY unlisted user → QR DSP</span>
-<span class="c">// upstream, classifyUnknownUser also defaults to</span>
-<span class="c">// airline+' DSP' by OFP behavior</span></pre>
-      <p class="ref">getDeptInfo ~L4581 · deptBadge ~L4587 · classifyUnknownUser ~L4534</p></div>
-    <div class="col"><p class="lbl next">proposed</p>
-      <pre><span class="k">var</span> dep = userDeptMap[userId] || getUserDept(userId)
-  || (<span class="n">/^U\d/</span>.test(userId) ? <span class="k">null</span> : <span class="s">'QR DSP'</span>);
-<span class="c">// U12345-style IDs → no category (unassigned);</span>
-<span class="c">// apply the same guard inside classifyUnknownUser</span>
-<span class="c">// so buildUserDeptMap stays the single source</span></pre>
-      <p class="prose">Open: is the rule <code>/^U\d/</code> (U then a digit) or strictly <code>/^U\d+$/</code> (U + all digits)?</p></div>
-  </div>
-</div>
-
-<div class="req a-data">
-  <div class="req-head">
-    <div class="num">5</div>
-    <div class="req-title"><h3>Route-structure analysis</h3><p>New: assess route <b>structure</b> from pasted strings or a 15,000+ row CSV/Excel catalog.</p></div>
-    <div class="tags"><span class="tag t-new">new</span><span class="eff">L</span></div>
-  </div>
-  <div class="shape">
-    <div class="col now"><p class="lbl now">current shape</p>
-      <pre><span class="c">// No route-catalog ingest today. Route paths exist only</span>
-<span class="c">// as per-OFP ITEM15 strings; the nearest machinery is</span>
-<span class="c">// extractWaypoints() (~L8362, strips /speed-level per P1)</span>
-<span class="c">// and ormClassify/ormDetectOceanic in Operated Route Mix.</span></pre>
-      <p class="ref">extractWaypoints ~L8362 · ormClassify ~L7886</p></div>
-    <div class="col"><p class="lbl next">proposed</p>
-      <pre><span class="c">// (a) paste multiple route strings, or</span>
-<span class="c">// (b) CSV/Excel, 11 cols, 15,000+ rows:</span>
-record_type, airline, route_code, route_status,
-purpose, from_airport, from_ctry, to_airport,
-to_ctry, miles, <span class="n">route_path</span></pre>
-      <p class="prose">Chunked/streamed parse + non-blocking render (Web Worker); the P3-inlined <b>SheetJS</b> handles the Excel read. Analyze structure per O&amp;D / country / status / purpose; reuse the waypoint extractor for path composition. Assumed: <b>new tab</b>.</p></div>
-  </div>
-</div>
-
-<div class="req a-data">
-  <div class="req-head">
-    <div class="num">6</div>
-    <div class="req-title"><h3>More points pending</h3><p>Placeholder — Axel is batching further requirements.</p></div>
-    <div class="tags"><span class="tag t-meta">meta</span><span class="eff">—</span></div>
-  </div>
-  <div class="shape">
-    <div class="col now"><p class="lbl now">current shape</p>
-      <pre><span class="c">// Batch 1 = points 1–5 · Batch 2 = points 7–15.</span></pre></div>
-    <div class="col"><p class="lbl next">proposed</p>
-      <pre>Report readiness after each batch; this dossier
-is the running ledger for new points.</pre></div>
-  </div>
-</div>
-
-<!-- ============ B. TABLES & EXPORT ============ -->
-<h2 class="a-tbl">B · Tables &amp; export</h2>
-<p class="h2sub">Make every table behave the same and get data out.</p>
-
-<div class="req a-tbl">
-  <div class="req-head">
-    <div class="num">7</div>
-    <div class="req-title"><h3>All tables sortable + adjustable</h3><p>Sort by <b>any</b> column and resize columns — everywhere, via one helper.</p></div>
-    <div class="tags"><span class="tag t-global">global</span><span class="tag t-refine">refine</span><span class="eff">M</span></div>
-  </div>
-  <div class="shape">
-    <div class="col now"><p class="lbl now">current shape</p>
-      <pre><span class="c">&lt;!-- many tables ARE already sortable, e.g.: --&gt;</span>
-&lt;th <span class="n">data-sort</span>=<span class="s">"CALLSIGN"</span> onclick=<span class="s">"sortTable('CALLSIGN')"</span>&gt;
-<span class="c">// …but via SEVEN separate per-tab sorters:</span>
-<span class="c">// sortTable ~L9950 · pcSortTable ~L16136 ·</span>
-<span class="c">// deSortTable ~L13720 · ormSortTable ~L7953 ·</span>
-<span class="c">// sortIfplTable ~L15433 · sortModifiedTable ~L8132 ·</span>
-<span class="c">// sortWorkforceGantt ~L14053. No column resize anywhere.</span></pre>
-      <p class="ref">th[data-sort] ~L2327</p></div>
-    <div class="col"><p class="lbl next">proposed</p>
-      <pre>One shared <span class="n">makeSortable(table, keys)</span> +
-drag-handle column resize, applied to ALL tables
-(flights, errors, hold, tankering, alternates,
-workforce, IFPL, route-mix, payload…).
-Retire the seven bespoke sorters onto it.</pre>
-      <p class="prose">Several static tables (errors, hold-by-destination, tankering top-N, alternates) gain sorting for the first time.</p></div>
-  </div>
-</div>
-
-<div class="req a-tbl">
-  <div class="req-head">
-    <div class="num">8</div>
-    <div class="req-title"><h3>Export any table (CSV / Excel)</h3><p>Every table gets an Export → CSV and .xlsx.</p></div>
-    <div class="tags"><span class="tag t-new">new</span><span class="tag t-global">global</span><span class="eff">M</span></div>
-  </div>
-  <div class="shape">
-    <div class="col now"><p class="lbl now">current shape</p>
-      <pre><span class="c">// No export control anywhere — data is view-only DOM.</span>
-<span class="c">// But the writer library is already on board:</span>
-<span class="c">/* SheetJS xlsx 0.18.5 (xlsx.full.min.js) — vendored</span>
-<span class="c">   inline for offline use (P3 #1) */</span></pre>
-      <p class="ref">vendored SheetJS block ~L51 · XLSX guard ~L4600</p></div>
-    <div class="col"><p class="lbl next">proposed</p>
-      <pre>Reusable <span class="n">exportTable(el, name, 'csv'|'xlsx')</span>:
-CSV natively; XLSX via the inlined SheetJS
-(<span class="il">XLSX.utils.table_to_book</span> + writeFile).
-One Export control in every table header —
-pairs naturally with the #7 shared helper.</pre></div>
-  </div>
-</div>
-
-<!-- ============ C. ANALYTICS CORRECTNESS ============ -->
-<h2 class="a-anl">C · Analytics correctness</h2>
-<p class="h2sub">Get the numbers right: haul basis, counts, tankering semantics, hold economics.</p>
-
-<div class="req a-anl">
-  <div class="req-head">
-    <div class="num">10</div>
-    <div class="req-title"><h3>Haul type from BLOCK time</h3><p>One classifier, block-time based (STA−STD) — the file currently uses <b>two</b>.</p></div>
-    <div class="tags"><span class="tag t-fix">fix</span><span class="eff">S</span></div>
-  </div>
-  <div class="shape">
-    <div class="col now"><p class="lbl now">current shape</p>
-      <pre><span class="c">// A derived, block-based classifier exists:</span>
-r.Haul_Block_Time = computeHaulBlockTime(r.STA, r.STD);
-<span class="c">// (STA−STD): ≤3h SH · ≤6h MH · ≤12h LH · else ULH ✓</span>
-<span class="c">// …but two surfaces still read the RAW CSV column:</span>
-haulTypes[<span class="n">r.HAUL_TYPE</span>]  <span class="c">// renderAnalytics ~L10167</span>
-(r.<span class="n">HAUL_TYPE</span> || '').trim() <span class="c">// computeCityPairCriticality ~L15512</span></pre>
-      <p class="ref">derived ~L5113 · computeHaulBlockTime ~L5214 · block readers: renderFlights ~L10032 / lifecycle ~L9332</p></div>
-    <div class="col"><p class="lbl next">proposed</p>
-      <pre>Standardize every consumer on
-<span class="n">Haul_Block_Time</span> (block = STA−STD).
-Switch the two raw-HAUL_TYPE readers
-(Analytics haul breakdown, Payload
-Criticality haul grouping); keep raw
-HAUL_TYPE visible only as a labelled
-"CSV says" cross-check.</pre>
-      <p class="prose">Confirmed: HAUL_TYPE <b>is</b> an original CSV column (col 15); the derived one is the block-time rule.</p></div>
-  </div>
-</div>
-
-<div class="req a-anl">
-  <div class="req-head">
-    <div class="num">11</div>
-    <div class="req-title"><h3>Day-of-week: add flight count</h3><p>Count flights per weekday, not just OFP rows.</p></div>
-    <div class="tags"><span class="tag t-refine">refine</span><span class="eff">S</span></div>
-  </div>
-  <div class="shape">
-    <div class="col now"><p class="lbl now">current shape</p>
-      <pre>r.Day_of_Week = computeDayOfWeek(r.STD);
-<span class="c">// UTC-frame since P1 fix #4 (~L5199)</span>
-<span class="c">// tally counts OFP ROWS only:</span>
-data.forEach(r =&gt; { <span class="k">if</span> (r.Day_of_Week)
-  dowCounts[r.Day_of_Week - <span class="n">1</span>]++; });</pre>
-      <p class="ref">computeDayOfWeek ~L5199 · getDayOfWeekBreakdown tally ~L12006 · consumers ~L5455 / ~L10281</p></div>
-    <div class="col"><p class="lbl next">proposed</p>
-      <pre>Per weekday show <span class="n">OFPs</span> AND distinct
-<span class="n">flights</span> (Set of flightKey per DOW),
-side-by-side in the DOW bar chart +
-overview "Busiest Day" insight.</pre>
-      <p class="prose">Uses the composite <code>flightKey</code> identity standardized in P1 #7.</p></div>
-  </div>
-</div>
-
-<div class="req a-anl">
-  <div class="req-head">
-    <div class="num">4</div>
-    <div class="req-title"><h3>Tankering: GAIN/LOSS are factors</h3><p>USD/ton estimation <b>factors</b> on every OFP — not money results. SAVINGS is the only realized number (tanker-performed flights).</p></div>
-    <div class="tags"><span class="tag t-fix">fix</span><span class="eff">S</span></div>
-  </div>
-  <div class="shape">
-    <div class="col now"><p class="lbl now">current shape</p>
-      <pre><span class="c">// Tankering Opportunity panel (~L10586):</span>
-<span class="k">const</span> tonnes = Math.max(<span class="n">0</span>, Math.min(
-    maltow - tow, mallw - lw)) / <span class="n">1000</span>;
-<span class="k">const</span> missedUsd = <span class="n">gain</span> * tonnes;
-<span class="c">// already banner-hedged ("upper bound", "review the</span>
-<span class="c">// distribution…", blank≡NO caveat ~L10607/~L10706),</span>
-<span class="c">// but the KPI still reads "Est. Missed Tankering $"</span></pre>
-      <p class="ref">~L10586-87 · assumption banner ~L10607 · "upper bound" note ~L10706</p></div>
-    <div class="col"><p class="lbl next">proposed</p>
-      <pre>Reframe: <span class="n">GAIN/LOSS</span> = indicative $/tonne
-FACTORS present on every OFP.
-KPI → <span class="s">"Favorable-factor exposure"</span>
-(indicative), never hard "missed $".
-<span class="n">SAVINGS</span> (tanker-performed only) stays
-the sole REALIZED headline number.</pre>
-      <p class="prose">Tightens the honesty framing the panel already carries — semantics, small edit.</p></div>
-  </div>
-</div>
-
-<div class="req a-anl">
-  <div class="req-head">
-    <div class="num">13</div>
-    <div class="req-title"><h3>Hold-by-STA: add fuel &amp; cost</h3><p>The hold-by-arrival-time (STA, UTC) view gains fuel + cost dimensions.</p></div>
-    <div class="tags"><span class="tag t-refine">refine</span><span class="eff">M</span></div>
-  </div>
-  <div class="shape">
-    <div class="col now"><p class="lbl now">current shape</p>
-      <pre><span class="c">// renderHoldTimeAnalysis (~L10991): per destination —</span>
-<span class="c">// Flights w/ Hold · ATC min · WX min · Total · Share ·</span>
-<span class="c">// Driver (ATC-/WX-driven) — plus a 4-band strip</span>
-<span class="c">// "Hold by Arrival Time (STA, UTC)" (~L11064)</span>
-<span class="c">// showing MINUTES only. No fuel, no cost.</span></pre>
-      <p class="ref">renderHoldTimeAnalysis ~L10991 · STA strip ~L11064 · container #holdTimeAnalysis ~L2513</p></div>
-    <div class="col"><p class="lbl next">proposed</p>
-      <pre>Add fuel &amp; cost per destination and per
-STA band, derived from <span class="n">GAIN/LOSS</span> where
-applicable — labelled per #4 as
-<span class="s">indicative factors, not realized $</span>
-(reuse the honesty-banner pattern).</pre></div>
-  </div>
-</div>
-
-<!-- ============ D. SEARCH & TAGGING ============ -->
-<h2 class="a-srch">D · Search &amp; tagging</h2>
-<p class="h2sub">Find city pairs by airport code, and flag the truly-completed flights.</p>
-
-<div class="req a-srch">
-  <div class="req-head">
-    <div class="num">3</div>
-    <div class="req-title"><h3>City-pair search (IATA / ICAO)</h3><p>Free-text 3-letter IATA or 4-letter ICAO code → filter city-pair tables.</p></div>
-    <div class="tags"><span class="tag t-new">new</span><span class="eff">S</span></div>
-  </div>
-  <div class="shape">
-    <div class="col now"><p class="lbl now">current shape</p>
-      <pre><span class="c">// A global Route DROPDOWN exists (pick a whole pair):</span>
-<span class="c">// populateCityPairFilter ~L8493 / filterByCityPair.</span>
-<span class="c">// Operated Route Mix has STD-band + aircraft selects</span>
-<span class="c">// ("Matrix filters:" ~L8035). But NO free-text</span>
-<span class="c">// airport-code search on any city-pair table.</span></pre>
-      <p class="ref">populateCityPairFilter ~L8493 · orm filters ~L8035</p></div>
-    <div class="col"><p class="lbl next">proposed</p>
-      <pre>One search input accepting <span class="n">IATA(3)</span> or
-<span class="n">ICAO(4)</span>; match either end of the pair
-against DEPARTURE/DESTINATION + the
-_IATA columns. Start on <span class="n">Operated Route
-Mix</span> (assumed), then Payload Criticality.</pre></div>
-  </div>
-</div>
-
-<div class="req a-srch">
-  <div class="req-head">
-    <div class="num">12</div>
-    <div class="req-title"><h3>"Completed" tag + "with ATS" search</h3><p>Flag flights where <span class="il">LAST_SENT=1</span> AND the ATS lifecycle is complete; filter by it everywhere.</p></div>
-    <div class="tags"><span class="tag t-new">new</span><span class="eff">M</span></div>
-  </div>
-  <div class="shape">
-    <div class="col now"><p class="lbl now">current shape</p>
-      <pre><span class="c">// OFP-level hook exists — classifyRteStatus (~L5180):</span>
-<span class="k">if</span> (r.LAST_SENT === <span class="s">'1'</span>) <span class="k">return</span> <span class="s">'Tagged'</span>;
-<span class="c">// and parseAtsHistory/classifyFilingWorkflow already</span>
-<span class="c">// parse the full ATS lifecycle — but no FLIGHT-level</span>
-<span class="c">// "Completed" tag, and no search integration.</span></pre>
-      <p class="ref">classifyRteStatus ~L5180 · parseAtsHistory ~L8596 · updateFilingStats ~L8552</p></div>
-    <div class="col"><p class="lbl next">proposed</p>
-      <pre>Flight-level tag (by <span class="n">flightKey</span>):
-<span class="n">Completed</span> = LAST_SENT=1 ∧ ATS lifecycle
-complete (filed/changed→ACK, no dangling REJ).
-Surface as a badge on Flights/Lifecycle rows +
-a <span class="s">"with ATS"</span> option in the global
-airline/route filter bar.</pre></div>
-  </div>
-</div>
-
-<!-- ============ E. CONFIG & UX ============ -->
-<h2 class="a-cfg">E · Config &amp; UX</h2>
-<p class="h2sub">Make thresholds tunable, surface full error detail, sharpen Change Mgmt.</p>
-
-<div class="req a-cfg">
-  <div class="req-head">
-    <div class="num">14</div>
-    <div class="req-title"><h3>Configurable payload bands</h3><p>Define the High / Medium / Light payload thresholds in-app.</p></div>
-    <div class="tags"><span class="tag t-refine">refine</span><span class="eff">S</span></div>
-  </div>
-  <div class="shape">
-    <div class="col now"><p class="lbl now">current shape</p>
-      <pre><span class="c">// computePayloadCategory (~L5226) — hardcoded %:</span>
-<span class="k">if</span> (pct &gt;= <span class="n">80</span>) <span class="k">return</span> <span class="s">'Full'</span>;
-<span class="k">if</span> (pct &gt;= <span class="n">60</span>) <span class="k">return</span> <span class="s">'High'</span>;
-<span class="k">if</span> (pct &gt;= <span class="n">40</span>) <span class="k">return</span> <span class="s">'Medium'</span>;  <span class="c">// else Light</span>
-<span class="c">// pcGetBand (~L15621) criticality bands also fixed:</span>
-<span class="c">// ≥90 CRITICAL · ≥70 HIGH · ≥50 MODERATE · LOW</span></pre>
-      <p class="ref">computePayloadCategory ~L5226 · pcGetBand ~L15621</p></div>
-    <div class="col"><p class="lbl next">proposed</p>
-      <pre>Editable threshold inputs, exactly the
-<span class="n">ANC-rate pattern</span> already shipped:
-setAncRate (~L15463) + KPI-card input
-(~L15666) → validate, invalidate cache,
-re-render, toast. Apply to both the
-payload bands and the criticality bands.</pre></div>
-  </div>
-</div>
-
-<div class="req a-cfg">
-  <div class="req-head">
-    <div class="num">9</div>
-    <div class="req-title"><h3>Error tab: full text + category grouping</h3><p>Whole error message; group by category; counts on the info card.</p></div>
-    <div class="tags"><span class="tag t-fix">fix</span><span class="tag t-refine">refine</span><span class="eff">M</span></div>
-  </div>
-  <div class="shape">
-    <div class="col now"><p class="lbl now">current shape</p>
-      <pre><span class="c">// renderErrors (~L10068) — flat list, truncated cell:</span>
-${esc(r.ERROR_MESSAGE.<span class="n">substring(0, 120)</span>)}...
-<span class="c">// capped: "Showing first 100 of N error records"</span>
-<span class="c">// (errorsPagination note, ~L10107). Overview card</span>
-<span class="c">// (#errorCategories ~L5445) shows top-5 counts only.</span></pre>
-      <p class="ref">truncation ~L10099 · cap note ~L10107 · overview card ~L5445</p></div>
-    <div class="col"><p class="lbl next">proposed</p>
-      <pre>Row → expandable full <span class="n">ERROR_MESSAGE</span>
-(esc()'d, pre-wrapped detail).
-<span class="n">Group rows by ERROR_CATEGORY</span> with
-collapsible headers + per-category counts;
-mirror the full grouping (not top-5) on
-the overview error info-card.</pre></div>
-  </div>
-</div>
-
-<div class="req a-cfg">
-  <div class="req-head">
-    <div class="num">15</div>
-    <div class="req-title"><h3>Improve Change Management tab</h3><p>Sharpen the deepest single-flight view.</p></div>
-    <div class="tags"><span class="tag t-refine">refine</span><span class="eff">?</span></div>
-  </div>
-  <div class="shape">
-    <div class="col now"><p class="lbl now">current shape</p>
-      <pre><span class="c">// analyzeFlightChangesByKey (~L12273, P1 #7 chooser):</span>
-<span class="c">// config diffs · ZFW/LOAD analysis · route-name perf ·</span>
-<span class="c">// economics ranking · SVG Gantt w/ zoom · workflow</span>
-<span class="c">// summary. One flight instance (CALLSIGN_DATE_STD)</span>
-<span class="c">// at a time.</span></pre>
-      <p class="ref">analyzeFlightChangesByKey ~L12273</p></div>
-    <div class="col"><p class="lbl next">proposed</p>
-      <pre>General improvement — <span class="n">scope TBD</span>;
-awaiting Axel's specifics. Candidates:
-completed-tag context (#12), export (#8),
-full-width Gantt, cross-day comparison.</pre></div>
-  </div>
-</div>
-
-<div class="note">
-  <b>Status:</b> requirements only — none of the 15 built yet. The P1+P2+P3 build (<span class="il">autoperf_viewer_127.html</span>, 2,137,975 B) is on disk, <b>local &amp; uncommitted</b> (per Axel), with a byte-identical email copy <span class="il">autoperf_viewer_127F.txt</span>. All "current shape" snippets and ~line refs were re-verified against this build on 2026-07-09.
-  <ul>
-    <li><b>Open · #2:</b> exact unlisted-user pattern — <span class="il">/^U\d/</span> (U then digit) vs <span class="il">/^U\d+$/</span> (U + all digits)?</li>
-    <li><b>Open · #3:</b> which tab(s) get the IATA/ICAO search first (assumed Operated Route Mix).</li>
-    <li><b>Open · #5:</b> confirm <span class="il">route_path</span> = ICAO field-15 string, and new tab vs extending Route Analysis (assumed new tab).</li>
-    <li><b>Open · #15:</b> Change-Mgmt scope — awaiting specifics.</li>
-  </ul>
-</div>
-
-<footer>
-  <span>AutoPerf 127 · improvement backlog · 15 points / 2 batches</span>
-  <span>snippets verified against build · P1+P2+P3</span>
-  <span>more points pending</span>
-</footer>
+  <footer>
+    <span>FPS Requirements · AutoPerf 127 · private</span>
+    <span>code logic only — no data</span>
+  </footer>
 </div>
 </body>
 </html>

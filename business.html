@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>AutoPerf 127 — Business Improvement Register</title>
+<style>
+  :root{
+    --bg:#0a0e14; --surface:#0e131c; --surface-2:#131b28; --raise:#18212f;
+    --border:#26303f; --border-soft:#1c2532;
+    --text:#d9e1ec; --muted:#8492a8; --faint:#5d6b82;
+    --gold:#e8b34a; --green:#37d99a; --cyan:#37c7d1; --red:#ff5b6e; --purple:#ab8cff;
+    --shadow:0 1px 0 rgba(255,255,255,.02), 0 12px 32px -18px rgba(0,0,0,.8);
+    --mono:ui-monospace,"Cascadia Code","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#f1f0ea; --surface:#ffffff; --surface-2:#f7f6f1; --raise:#efeee7;
+      --border:#ddd8cc; --border-soft:#e8e5db; --text:#221f18; --muted:#5c574a; --faint:#8c8676;
+      --gold:#a9791a; --green:#12996a; --cyan:#0f8f99; --red:#d33044; --purple:#6b4fd0;
+      --shadow:0 1px 2px rgba(40,34,20,.05), 0 12px 30px -20px rgba(40,34,20,.25);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0a0e14; --surface:#0e131c; --surface-2:#131b28; --raise:#18212f; --border:#26303f; --border-soft:#1c2532;
+    --text:#d9e1ec; --muted:#8492a8; --faint:#5d6b82; --gold:#e8b34a; --green:#37d99a; --cyan:#37c7d1; --red:#ff5b6e; --purple:#ab8cff;
+  }
+  :root[data-theme="light"]{
+    --bg:#f1f0ea; --surface:#ffffff; --surface-2:#f7f6f1; --raise:#efeee7; --border:#ddd8cc; --border-soft:#e8e5db;
+    --text:#221f18; --muted:#5c574a; --faint:#8c8676; --gold:#a9791a; --green:#12996a; --cyan:#0f8f99; --red:#d33044; --purple:#6b4fd0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased;font-size:15px}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 22px 90px}
+  ::selection{background:var(--gold);color:var(--bg)}
+
+  header.top{padding:52px 0 30px;border-bottom:1px solid var(--border);margin-bottom:32px}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin:0 0 14px}
+  h1{font-family:var(--mono);font-weight:700;font-size:clamp(27px,4.4vw,42px);line-height:1.05;margin:0 0 12px;letter-spacing:-.5px;text-wrap:balance}
+  h1 .dim{color:var(--faint)}
+  .lede{color:var(--muted);max-width:66ch;margin:0 0 20px;font-size:16px}
+  .lede b{color:var(--text)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{font-family:var(--mono);font-size:11.5px;padding:5px 10px;border:1px solid var(--border);border-radius:999px;color:var(--muted);background:var(--surface);white-space:nowrap}
+  .chip b{color:var(--text)}
+
+  section{margin:38px 0}
+  h2{font-family:var(--mono);font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 0 4px;display:flex;align-items:center;gap:10px}
+  h2::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--gold);box-shadow:0 0 10px var(--gold)}
+  .h2sub{color:var(--faint);font-size:13px;margin:0 0 20px}
+
+  /* hero top-3 */
+  .hero{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  @media(max-width:800px){.hero{grid-template-columns:1fr}}
+  .money{background:linear-gradient(160deg,var(--surface),var(--surface-2));border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:12px;padding:18px 18px 20px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+  .money .rank{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase}
+  .money h3{font-size:17px;margin:8px 0 4px;letter-spacing:-.2px}
+  .money .big{font-family:var(--mono);font-weight:700;font-size:26px;color:var(--green);margin:10px 0 2px;line-height:1}
+  .money .big small{display:block;font-size:10.5px;color:var(--muted);letter-spacing:.06em;font-weight:500;margin-top:5px;text-transform:uppercase}
+  .money p{margin:10px 0 0;font-size:13px;color:var(--muted)}
+  .money p b{color:var(--text)}
+  .money code{font-family:var(--mono);font-size:11.5px;background:var(--raise);padding:1px 5px;border-radius:4px;color:var(--text)}
+  .money .foot{margin-top:auto;padding-top:12px;font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+
+  /* register table */
+  .scroll{overflow-x:auto;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:660px}
+  th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--border-soft);vertical-align:top}
+  thead th{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);background:var(--surface-2);position:sticky;top:0}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:var(--surface-2)}
+  td.p{font-family:var(--mono);font-weight:700;color:var(--gold);white-space:nowrap}
+  td .opp{color:var(--text);font-weight:600}
+  td .ev{color:var(--muted);font-size:12.5px;display:block;margin-top:3px}
+  td code{font-family:var(--mono);font-size:11.5px;color:var(--text);background:var(--raise);padding:1px 4px;border-radius:4px}
+  .lever{font-family:var(--mono);font-size:10px;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:5px;white-space:nowrap;display:inline-block}
+  .l-fuel{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green)}
+  .l-time{background:color-mix(in srgb,var(--cyan) 15%,transparent);color:var(--cyan)}
+  .l-risk{background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red)}
+  .l-cap{background:color-mix(in srgb,var(--purple) 15%,transparent);color:var(--purple)}
+  .l-pol{background:color-mix(in srgb,var(--gold) 15%,transparent);color:var(--gold)}
+  .tag-new{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;padding:1px 6px;border-radius:4px;text-transform:uppercase;white-space:nowrap;background:color-mix(in srgb,var(--gold) 16%,transparent);color:var(--gold)}
+  .tag-ext{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;padding:1px 6px;border-radius:4px;text-transform:uppercase;white-space:nowrap;background:var(--raise);color:var(--muted)}
+
+  /* data quality */
+  .dq{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:720px){.dq{grid-template-columns:1fr}}
+  .dq .item{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:10px;padding:14px 16px}
+  .dq .item h4{margin:0 0 5px;font-size:14px;font-family:var(--mono)}
+  .dq .item p{margin:0;color:var(--muted);font-size:13px}
+  .dq .item code{font-family:var(--mono);font-size:12px;color:var(--text);background:var(--raise);padding:1px 4px;border-radius:4px}
+
+  .seq{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;box-shadow:var(--shadow);font-size:14px;color:var(--muted)}
+  .seq b{color:var(--text)}
+  .seq ol{margin:6px 0 0;padding-left:20px}
+  .seq li{margin:7px 0}
+  .seq .g{color:var(--gold);font-family:var(--mono);font-weight:600}
+
+  footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--border);color:var(--faint);font-size:12px;font-family:var(--mono);display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <p class="eyebrow">Flight-Planning Systems · Opportunity Register</p>
+  <h1>AutoPerf&nbsp;127 <span class="dim">— Business Improvement Register</span></h1>
+  <p class="lede">Mined from the tool's own <b>Glossary</b> — the documented business semantics of QR's flight-planning system. Ten prioritized opportunities across fuel $, dispatcher hours, compute capacity, filing quality and policy, each grounded in specific glossary evidence and checked for feasibility against the 127 columns.</p>
+  <div class="chips">
+    <span class="chip">basis: <b>Glossary L3453–4294</b> + 127-col sample</span>
+    <span class="chip">scale: <b>~6,862</b> calcs · <b>~604</b> filings/day</span>
+    <span class="chip"><b>10</b> opportunities · <b>3</b> data-quality fixes</span>
+  </div>
+</header>
+
+<!-- TOP 3 -->
+<section>
+  <h2>The money threads — act on these first</h2>
+  <p class="h2sub">Ranked by evidence-to-decision speed and business value.</p>
+  <div class="hero">
+    <div class="money">
+      <span class="rank">P1 · fuel $ · NEW</span>
+      <h3>Missed &amp; capped tankering</h3>
+      <div class="big">~$4M/yr<small>illustrative upper bound</small></div>
+      <p><code>GAIN</code>/<code>LOSS</code> (USD/ton) sit on <b>every</b> OFP whether tankering ran or not; <code>SAVINGS</code> only when executed. So flights that were <b>favorable but not tankered</b> (<code>TANKERING_REASON=NO/blank</code>) and <code>MAXB</code>/<code>MAXH</code>-capped ones are directly countable. Break-even documented (ZFWCF≈0.027/hr).</p>
+      <div class="foot">Zero operational change · one script over a month settles it</div>
+    </div>
+    <div class="money">
+      <span class="rank">P3 · capacity + risk · extend</span>
+      <h3>Compute queue × batch pruning</h3>
+      <div class="big">57 min<small>peak CALC_DELAY tail</small></div>
+      <p>Pure CPU queue wait is normally 25 s but reaches <b>~57 min under load</b> — a late-OFP hazard near STD. Demand-side fix within your AOS-config authority: <b>prune FREEOPT/OPTI candidates that never win</b> per city pair + kill recurring error-burners (e.g. the <code>RAPET–MASEK</code> segment defect).</p>
+      <div class="foot">Frees the CPU headroom that makes P2 free</div>
+    </div>
+    <div class="money">
+      <span class="rank">P2 · governance · extend</span>
+      <h3>File-then-optimize gate</h3>
+      <div class="big">~1:1<small>Changed per initial filing</small></div>
+      <p>AOS files a crude PRED route ~3 min after compute <b>start</b>, optimizes 20–58 min, then <code>CHG</code>s it — yet the evidence shows <b>9.75 h of lead time</b>. 484 <code>Filed+Sent</code> vs <b>447 Changed</b>/day. A one-line policy — <b>hold filing until the batch completes when <code>Hrs_Before_STD</code> &gt; threshold</b> — cuts ATC churn and aligns filed-vs-optimized.</p>
+      <div class="foot">Serves your RAD / planned-vs-flown agenda · costs nothing</div>
+    </div>
+  </div>
+</section>
+
+<!-- FULL REGISTER -->
+<section>
+  <h2>Full register</h2>
+  <p class="h2sub"><span class="lever l-fuel">fuel&nbsp;$</span> <span class="lever l-time">dispatcher&nbsp;hrs</span> <span class="lever l-cap">compute</span> <span class="lever l-risk">risk/safety</span> <span class="lever l-pol">policy</span> &nbsp;·&nbsp; <span class="tag-new">new</span> = no tab computes it · <span class="tag-ext">extend</span> = builds on an existing tab.</p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>#</th><th>Opportunity &amp; evidence</th><th>Lever</th><th>Metric / columns</th><th></th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="p">P1</td>
+        <td><span class="opp">Missed &amp; capped tankering</span><span class="ev">GAIN/LOSS on every OFP; SAVINGS only when executed. Money left on the apron.</span></td>
+        <td><span class="lever l-fuel">fuel $</span></td>
+        <td>Missed$ = <code>GAIN</code>×min(<code>MALTOW−TOW</code>,<code>MALLW−LW</code>); capped = <code>MAXB/MAXH</code><span class="ev">All columns present. Flag: blank vs "NO"; small per-ton → show distribution.</span></td>
+        <td><span class="tag-new">new</span></td>
+      </tr>
+      <tr>
+        <td class="p">P2</td>
+        <td><span class="opp">File-then-optimize gate</span><span class="ev">Files crude route at compute start; CHGs after optimizing. 9.75 h lead time available.</span></td>
+        <td><span class="lever l-risk">risk</span> <span class="lever l-fuel">fuel $</span></td>
+        <td>Filed <code>ITEM15</code>/<code>COST</code> vs batch-best; count downstream <code>Changed</code>; group by <code>SCENARIO</code></td>
+        <td><span class="tag-ext">extend</span></td>
+      </tr>
+      <tr>
+        <td class="p">P3</td>
+        <td><span class="opp">Compute queue × batch pruning</span><span class="ev">CALC_DELAY tail 57 min; prune never-winning FREEOPT/OPTI per city pair.</span></td>
+        <td><span class="lever l-cap">compute</span> <span class="lever l-risk">risk</span></td>
+        <td>Concurrency from <code>[CALC_TIME, +ELAPSED]</code>; win-rate &amp; $/CPU-s by <code>ROUTE_TYPE</code>×pair</td>
+        <td><span class="tag-ext">extend</span></td>
+      </tr>
+      <tr>
+        <td class="p">P4</td>
+        <td><span class="opp">NORULE rule-coverage gaps</span><span class="ev">OFFICE=NORULE = no AOS routing rule matched → manual cost + unruled route.</span></td>
+        <td><span class="lever l-time">dispatcher hrs</span> <span class="lever l-pol">policy</span></td>
+        <td>NORULE/day by city pair &amp; recurrence; rank "rules to write" by flights/yr covered</td>
+        <td><span class="tag-new">new</span></td>
+      </tr>
+      <tr>
+        <td class="p">P5</td>
+        <td><span class="opp">Human-intervention ROI</span><span class="ev">Split 35.5% human records into improve / neutral re-send / cost. Live proof: +$176 &amp; +266 kg from one re-sequence.</span></td>
+        <td><span class="lever l-time">dispatcher hrs</span> <span class="lever l-fuel">fuel $</span></td>
+        <td>Signed Δ<code>COST</code>/Δ<code>TRIP_FUEL</code> vs best AOS (ZFW-gated), decomposed route/altn/adders</td>
+        <td><span class="tag-ext">extend</span></td>
+      </tr>
+      <tr>
+        <td class="p">P6</td>
+        <td><span class="opp">Alternate-policy codification</span><span class="ev">Glossary's own "to be analyzed" TODO — humans re-sequence "BY USER" with carried-fuel cost, no written policy.</span></td>
+        <td><span class="lever l-fuel">fuel $</span> <span class="lever l-pol">policy</span></td>
+        <td>Ordering premium = <code>ALTN_FUEL_1</code>−min(<code>ALTN_FUEL_1..4</code>); cluster by destination<span class="ev">Upper bound — wx/curfew not in data.</span></td>
+        <td><span class="tag-ext">extend</span></td>
+      </tr>
+      <tr>
+        <td class="p">P7</td>
+        <td><span class="opp">Filing ordering &amp; REJ asymmetry</span><span class="ev">Human REJ 8:1 vs AOS; opposite crew-vs-ATC ordering (AOS 97% crew-first, human 99% ATC-first).</span></td>
+        <td><span class="lever l-risk">safety</span> <span class="lever l-time">dispatcher hrs</span></td>
+        <td>"Sent→Changed REJ" exposure; human REJ taxonomy from <code>ATS_HISTORY</code>/<code>IFPUV_MESSAGE</code> → pre-file checklist</td>
+        <td><span class="tag-ext">extend</span></td>
+      </tr>
+      <tr>
+        <td class="p">P8</td>
+        <td><span class="opp">Error-driven compute waste</span><span class="ev">Errored OFPs burn full ROUTOPT then produce nothing; recurring segment defects are fixable.</span></td>
+        <td><span class="lever l-cap">compute</span> <span class="lever l-pol">coverage</span></td>
+        <td>Σ<code>ELAPSED</code> over <code>*_ERROR=1</code>; top recurring <code>ERROR_IDENTIFIER</code> pairs</td>
+        <td><span class="tag-ext">extend</span></td>
+      </tr>
+      <tr>
+        <td class="p">P9</td>
+        <td><span class="opp">RECALC delegation expansion</span><span class="ev">RECALC (7.3%) = dispatchers already delegate to AOS via right-click. Find manual work that could delegate.</span></td>
+        <td><span class="lever l-time">dispatcher hrs</span></td>
+        <td>Human iterations within noise of preceding AOS <code>ITEM15</code>/<code>COST</code>, by <code>OFFICE</code></td>
+        <td><span class="tag-ext">extend</span></td>
+      </tr>
+      <tr>
+        <td class="p">P10</td>
+        <td><span class="opp">Governance / data-capture gaps</span><span class="ev">SCENARIO undocumented · CO2_COST empty · SUFFIX not in company policy.</span></td>
+        <td><span class="lever l-pol">policy</span></td>
+        <td>Document <code>SCENARIO</code>; verify <code>CO2_COST</code> population; one-page SUFFIX precedence policy</td>
+        <td><span class="tag-new">new</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- DATA QUALITY -->
+<section>
+  <h2>Data-quality fixes that unblock the above</h2>
+  <p class="h2sub">Cheap to fix, found while verifying against the real sample — being actioned now.</p>
+  <div class="dq">
+    <div class="item">
+      <h4>SCENARIO — undocumented</h4>
+      <p>Present as CSV col 17 but absent from the glossary — it's the clean <b>batch/event key</b> that P2/P3/P7 need. → added to the Glossary + data dictionary.</p>
+    </div>
+    <div class="item">
+      <h4>CO₂_COST — empty</h4>
+      <p><code>CO2_COST</code> blank in all 10 sample rows. If true at scale, route-level CORSIA/EU-ETS costing is dark (and the CO₂-per-intent analytic runs empty). → verify population; likely a LIDO config ticket.</p>
+    </div>
+    <div class="item">
+      <h4>Glossary example misalignment</h4>
+      <p><code>ALTN_SEQ</code>/<code>CONT_POLICY</code>/<code>VOLAR</code> example values didn't match the columns. → corrected in the Glossary tab.</p>
+    </div>
+    <div class="item">
+      <h4>Dictionary lagged 93-col</h4>
+      <p><code>AUTOPERF_DATA_DICTIONARY.md</code> still described 93 columns. → refreshed with a 127-Column Additions section + tankering-economics note.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SEQUENCING -->
+<section>
+  <h2>Sequencing</h2>
+  <div class="seq">
+    <ol>
+      <li><span class="g">P1 tankering</span> — fastest evidence-to-$ loop; a month of extracts either reveals a recurring 6–7-figure number or honestly closes the question. <b>(Being built into the viewer now.)</b></li>
+      <li><span class="g">P3 compute queue + P8 error-burners</span> — an operational-risk signal you can act on with AOS-config authority; creates headroom that makes P2 free.</li>
+      <li><span class="g">P2 file-then-optimize gate</span> — highest governance leverage per unit effort; measure the delta for a month, then a one-line config decision to Flight Ops.</li>
+    </ol>
+    <p style="margin:12px 0 0"><b>Second wave:</b> P5 (human-intervention ROI) &amp; P6 (alternate policy) — they reuse the viewer's fair-comparison machinery, but they touch people's work, so bring them after wins 1–3 give the register credibility.</p>
+  </div>
+</section>
+
+<footer>
+  <span>AutoPerf 127 · business register · mined from the in-app Glossary</span>
+  <span>companion to the System Audit dossier</span>
+</footer>
+</div>
+</body>
+</html>

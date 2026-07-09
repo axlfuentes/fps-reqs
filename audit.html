@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>AutoPerf 127 — System Audit & High-Level Conclusions</title>
+<style>
+  :root{
+    --bg:#0a0e14; --surface:#0e131c; --surface-2:#131b28; --raise:#18212f;
+    --border:#26303f; --border-soft:#1c2532;
+    --text:#d9e1ec; --muted:#8492a8; --faint:#5d6b82;
+    --cyan:#37d1d7; --green:#33d99a; --amber:#ffb03d; --red:#ff5b6e; --purple:#ab8cff;
+    --p1:#ff5b6e; --p2:#ffb03d; --p3:#37d1d7;
+    --shadow:0 1px 0 rgba(255,255,255,.02), 0 12px 32px -18px rgba(0,0,0,.8);
+    --mono:ui-monospace,"Cascadia Code","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#eef1f6; --surface:#ffffff; --surface-2:#f6f8fb; --raise:#eef2f7;
+      --border:#d3dbe6; --border-soft:#e2e8f0;
+      --text:#182234; --muted:#54617a; --faint:#8894a8;
+      --cyan:#0f9ba1; --green:#12996a; --amber:#b9761a; --red:#d33044; --purple:#6b4fd0;
+      --p1:#d33044; --p2:#b9761a; --p3:#0f9ba1;
+      --shadow:0 1px 2px rgba(20,30,50,.05), 0 12px 30px -20px rgba(20,30,50,.25);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0a0e14; --surface:#0e131c; --surface-2:#131b28; --raise:#18212f;
+    --border:#26303f; --border-soft:#1c2532; --text:#d9e1ec; --muted:#8492a8; --faint:#5d6b82;
+    --cyan:#37d1d7; --green:#33d99a; --amber:#ffb03d; --red:#ff5b6e; --purple:#ab8cff;
+    --p1:#ff5b6e; --p2:#ffb03d; --p3:#37d1d7;
+  }
+  :root[data-theme="light"]{
+    --bg:#eef1f6; --surface:#ffffff; --surface-2:#f6f8fb; --raise:#eef2f7;
+    --border:#d3dbe6; --border-soft:#e2e8f0; --text:#182234; --muted:#54617a; --faint:#8894a8;
+    --cyan:#0f9ba1; --green:#12996a; --amber:#b9761a; --red:#d33044; --purple:#6b4fd0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.55;
+    -webkit-font-smoothing:antialiased;font-size:15px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px 90px}
+  a{color:var(--cyan);text-decoration:none}
+  a:hover{text-decoration:underline}
+  ::selection{background:var(--cyan);color:var(--bg)}
+
+  /* header */
+  header.top{position:relative;padding:52px 0 30px;border-bottom:1px solid var(--border);margin-bottom:34px;overflow:hidden}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);margin:0 0 14px}
+  h1{font-family:var(--mono);font-weight:700;font-size:clamp(28px,4.6vw,44px);line-height:1.05;margin:0 0 10px;letter-spacing:-.5px;text-wrap:balance}
+  h1 .dim{color:var(--faint)}
+  .lede{color:var(--muted);max-width:64ch;margin:0 0 22px;font-size:16px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{font-family:var(--mono);font-size:11.5px;padding:5px 10px;border:1px solid var(--border);border-radius:999px;color:var(--muted);background:var(--surface);white-space:nowrap}
+  .chip b{color:var(--text);font-weight:600}
+
+  .verdict{margin-top:24px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;
+    background:linear-gradient(100deg,var(--surface),var(--surface-2));border:1px solid var(--border);
+    border-left:3px solid var(--green);border-radius:12px;padding:16px 20px;box-shadow:var(--shadow)}
+  .gauge{font-family:var(--mono);font-weight:700;font-size:40px;line-height:1;color:var(--green);text-align:center;min-width:96px}
+  .gauge small{display:block;font-size:10.5px;letter-spacing:.12em;color:var(--muted);font-weight:500;margin-top:6px;text-transform:uppercase}
+  .verdict p{margin:0;font-size:14.5px}
+  .verdict b{color:var(--text)}
+
+  section{margin:40px 0}
+  h2{font-family:var(--mono);font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+    margin:0 0 4px;display:flex;align-items:center;gap:10px}
+  h2::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+  .h2sub{color:var(--faint);font-size:13px;margin:0 0 20px;font-family:var(--sans)}
+  h3{font-size:16px;margin:0 0 8px;letter-spacing:-.2px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 22px;box-shadow:var(--shadow)}
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:720px){.g2,.g3{grid-template-columns:1fr}.verdict{grid-template-columns:1fr}}
+
+  /* pipeline */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;font-family:var(--mono);font-size:12.5px}
+  .flow .stage{flex:1;min-width:120px;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:11px 12px}
+  .flow .stage .k{color:var(--cyan);font-weight:600;display:block;margin-bottom:3px}
+  .flow .stage .v{color:var(--muted);font-size:11px}
+  .flow .arw{align-self:center;color:var(--faint);font-size:16px}
+  @media(max-width:720px){.flow .arw{transform:rotate(90deg)}}
+
+  /* data model cards */
+  .dm{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:720px){.dm{grid-template-columns:1fr}}
+  .dm .col{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px}
+  .dm .col .cols{font-family:var(--mono);font-size:11.5px;color:var(--purple);display:block;margin-bottom:4px;letter-spacing:.02em}
+  .dm .col .use{font-size:13px;color:var(--muted)}
+  .pill{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+    padding:2px 7px;border-radius:5px;vertical-align:middle}
+  .pill.new{background:color-mix(in srgb,var(--green) 16%,transparent);color:var(--green);border:1px solid color-mix(in srgb,var(--green) 34%,transparent)}
+
+  /* risk cards */
+  .risk{border-left:3px solid var(--red);position:relative}
+  .risk .num{font-family:var(--mono);font-size:12px;color:var(--red);font-weight:700;letter-spacing:.1em}
+  .risk p{margin:8px 0 0;font-size:14px;color:var(--muted)}
+  .risk p b{color:var(--text)}
+  .risk code{font-family:var(--mono);font-size:12px;background:var(--raise);padding:1px 5px;border-radius:4px;color:var(--text)}
+  .strength{border-left:3px solid var(--green)}
+  .strength .num{color:var(--green)}
+
+  /* cross-check convergence */
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  .scroll{overflow-x:auto;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow)}
+  table.x{min-width:640px}
+  table.x th,table.x td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--border-soft);vertical-align:top}
+  table.x thead th{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--surface-2);position:sticky;top:0}
+  table.x tbody tr:last-child td{border-bottom:none}
+  table.x td.lens{font-family:var(--mono);font-size:12px;color:var(--text);white-space:nowrap;font-weight:600}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+  .d-view{background:var(--amber)} .d-pbi{background:var(--purple)} .d-kb{background:var(--cyan)}
+
+  /* roadmap */
+  .lane{margin-bottom:26px}
+  .lane-h{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+  .lane-h .tag{font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.08em;padding:4px 10px;border-radius:6px}
+  .tag.p1{background:color-mix(in srgb,var(--p1) 15%,transparent);color:var(--p1);border:1px solid color-mix(in srgb,var(--p1) 38%,transparent)}
+  .tag.p2{background:color-mix(in srgb,var(--p2) 15%,transparent);color:var(--p2);border:1px solid color-mix(in srgb,var(--p2) 38%,transparent)}
+  .tag.p3{background:color-mix(in srgb,var(--p3) 15%,transparent);color:var(--p3);border:1px solid color-mix(in srgb,var(--p3) 38%,transparent)}
+  .lane-h .lbl{font-size:14px;color:var(--muted)}
+  table.r{min-width:660px}
+  table.r th,table.r td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--border-soft);vertical-align:top}
+  table.r thead th{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);background:var(--surface-2)}
+  table.r td.id{font-family:var(--mono);font-weight:700;color:var(--text);white-space:nowrap}
+  table.r td.ln{font-family:var(--mono);font-size:11.5px;color:var(--faint);white-space:nowrap}
+  table.r td .why{color:var(--muted);font-size:12.5px;display:block;margin-top:3px}
+  table.r tbody tr:hover{background:var(--surface-2)}
+  .eff{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
+  .flag{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;padding:1px 6px;border-radius:4px;text-transform:uppercase;white-space:nowrap;display:inline-block;margin-top:5px}
+  .flag.pbi{background:color-mix(in srgb,var(--purple) 15%,transparent);color:var(--purple)}
+  .flag.kb{background:color-mix(in srgb,var(--cyan) 15%,transparent);color:var(--cyan)}
+
+  ul.tight{margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:13.5px}
+  ul.tight li{margin:5px 0}
+  ul.tight b{color:var(--text)}
+  .order{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;box-shadow:var(--shadow);font-size:14px}
+  .order .seq{font-family:var(--mono);color:var(--text);font-size:13.5px;line-height:2}
+  .order .seq .a{color:var(--red)} .order .seq .b{color:var(--amber)} .order .seq .c{color:var(--cyan)}
+  footer{margin-top:52px;padding-top:22px;border-top:1px solid var(--border);color:var(--faint);font-size:12px;font-family:var(--mono);display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;font-family:var(--mono);font-size:11.5px;color:var(--muted);margin:-6px 0 18px}
+  .legend span{display:inline-flex;align-items:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <p class="eyebrow">Flight-Planning Systems · Internal Audit</p>
+  <h1>AutoPerf&nbsp;127 <span class="dim">— System Audit &amp; High-Level Conclusions</span></h1>
+  <p class="lede">A performance-forensics console that reconstructs every flight-plan calculation from AOS automation through human dispatch to ATC filing. Reviewed line-by-line, then cross-checked against the canonical Power&nbsp;BI model and the workspace Lessons-Learned KB.</p>
+  <div class="chips">
+    <span class="chip" style="border-color:color-mix(in srgb,var(--green) 45%,transparent);color:var(--green)"><b>✓ P1+P2+P3 shipped</b> · 2026-07-07</span>
+    <span class="chip"><b>14,931</b> lines · single file</span>
+    <span class="chip"><b>127-col</b> schema (was 93)</span>
+    <span class="chip"><b>15</b> analytical tabs</span>
+    <span class="chip"><b>~249</b> functions</span>
+    <span class="chip">deps: <b>Chart.js · xlsx</b> (CDN)</span>
+  </div>
+  <div class="verdict">
+    <div class="gauge">✓<small>shipped &amp; verified</small></div>
+    <p><b>All three passes shipped &amp; promoted (2026-07-07)</b> to the canonical build. <b>P1</b> — 12 correctness bugs fixed (Time Impact, LIDO %, header-guard, multi-day key…). <b>P2</b> — 6 latent-value analytics added (alternate-quality, hold-attribution, CO₂, offload, wind, configurable ANC). <b>P3</b> — Chart.js + xlsx vendored inline (offline-safe), fonts de-CDN'd, untrusted fields escaped. Verified live (0 console errors) + <b>26 / 23 / 22</b> assertions green; pre-fix original preserved as a dated reference.</p>
+  </div>
+</header>
+
+<!-- WHAT IT IS -->
+<section>
+  <h2>What the system is</h2>
+  <p class="h2sub">One CSV row = one OFP/CFP computation. Grouped per flight, it answers the questions a Flight Planning Systems Manager owns.</p>
+  <div class="card">
+    <div class="flow">
+      <div class="stage"><span class="k">AOS</span><span class="v">USER=lido · automated FIRST/ZFW/ACFT/FINAL triggers</span></div>
+      <div class="arw">→</div>
+      <div class="stage"><span class="k">HUMAN</span><span class="v">TYPE=IFPL · qrXXXXX at offices D01–D13 / M01–M09</span></div>
+      <div class="arw">→</div>
+      <div class="stage"><span class="k">VALIDATE</span><span class="v">IFPUV · Eurocontrol ACK / REJ</span></div>
+      <div class="arw">→</div>
+      <div class="stage"><span class="k">FILE</span><span class="v">LAST_FILED · ATS_HISTORY actions</span></div>
+      <div class="arw">→</div>
+      <div class="stage"><span class="k">BRIEF</span><span class="v">LAST_SENT to crew</span></div>
+    </div>
+    <p style="margin:16px 0 0;color:var(--muted);font-size:13.5px">It decides real things: <b style="color:var(--text)">is the AOS automation trustworthy</b>, do dispatchers add value or burn fuel when they override it, <b style="color:var(--text)">what fraction of filed routes the LIDO engine actually authored</b> (one <code style="font-family:var(--mono);font-size:12px">lidoContributionData</code> shared across 5 tabs), how many dispatchers are needed per hour, and which city pairs are payload-/weight-constrained and expensive. Nearly every table ranks, scores, or classifies.</p>
+  </div>
+</section>
+
+<!-- DATA MODEL -->
+<section>
+  <h2>The data model — why "127" matters</h2>
+  <p class="h2sub">The 26 columns added over the old 93-col schema aren't cosmetic — and the good news: they're <b>mostly exploited, not latent</b>.</p>
+  <div class="dm">
+    <div class="col"><span class="cols">MALTOW · MALLW · MALZFW · TAKE_OFF/LANDING_WEIGHT <span class="pill new">new</span></span><span class="use">Weight-limit proximity → <b style="color:var(--text)">payload-limited-flight detection</b> — the backbone of the Payload Criticality tab.</span></div>
+    <div class="col"><span class="cols">ATC_HOLD_TIME · WX_HOLD_TIME <span class="pill new">new</span></span><span class="use">Delay attribution — ATC vs weather hold fuel (currently fleet-total only).</span></div>
+    <div class="col"><span class="cols">OFFLOAD · OFFLOAD_REASON · CO2_COST <span class="pill new">new</span></span><span class="use">Offload economics + environmental cost per plan/route.</span></div>
+    <div class="col"><span class="cols">ALTN_TIME/FUEL/FL · 1–4 <span class="pill new">new</span></span><span class="use">Alternate-selection quality — fuel penalty of each alternate slot.</span></div>
+    <div class="col"><span class="cols">CONT_POLICY · VOLAR · SCENARIO <span class="pill new">new</span></span><span class="use">Contingency-policy usage audit; live plans vs what-if runs.</span></div>
+    <div class="col"><span class="cols">AIR_DISTANCE · CLIMB/DESCENT_PROCEDURE · SKYVECTOR <span class="pill new">new</span></span><span class="use">Wind-efficiency (air vs ground dist) — <b style="color:var(--text)">still latent</b>; profile provenance; one-click route viz.</span></div>
+  </div>
+</section>
+
+<!-- HIGH-LEVEL CONCLUSIONS -->
+<section>
+  <h2>High-level conclusions</h2>
+  <p class="h2sub">The headline read: strong instrument, three structural risks, one cross-system truth.</p>
+
+  <div class="grid g3" style="margin-bottom:16px">
+    <div class="card risk">
+      <span class="num">RISK 01</span>
+      <h3>Silent wrong numbers</h3>
+      <p>The monolith grew until <b>later code overwrites earlier code</b>: <code>parseTimeToMinutes</code> is redefined 4,600 lines apart with an incompatible format, so Route Analysis <b>"Time Impact" reads 0 for every flight</b>. No test harness, no schema check, no assertion layer to catch it.</p>
+    </div>
+    <div class="card risk">
+      <span class="num">RISK 02</span>
+      <h3>Multi-day identity confusion</h3>
+      <p>Core key is <code>CALLSIGN_DATE_STD</code>, but three analyses fall back to <b>bare CALLSIGN</b> — correct for one day, silently wrong once weekly files are merged (which the Workforce tab explicitly encourages). QR001 across 7 days collapses into one flight.</p>
+    </div>
+    <div class="card risk">
+      <span class="num">RISK 03</span>
+      <h3>Environment coupling &amp; trust</h3>
+      <p>Chart.js / xlsx / Google-Fonts <b>CDNs reintroduce online dependency</b> the 93-col build avoided — Payload charts die offline on a corporate PC. Everything renders via <code>innerHTML</code> with unescaped log fields — fine for self-generated logs, a real exposure for a foreign CSV.</p>
+    </div>
+  </div>
+
+  <div class="card strength">
+    <span class="num">STRENGTH</span>
+    <h3>Where its analytical leverage is real</h3>
+    <p>The center of gravity — the <b>adopted / same-name / ≥90%-similar / truly-modified</b> decomposition feeding one shared <code>lidoContributionData</code> across five tabs — is the right abstraction. The <b>"fair comparison" ZFW-gating</b> refuses to blame dispatchers for fuel deltas caused by load changes; the dispatcher-intent taxonomy, multi-file smart-merge with workflow fingerprints, the weekly workforce view, and the glossary-as-documentation are all above the bar for a single-file internal tool.</p>
+  </div>
+</section>
+
+<!-- CROSS CHECK -->
+<section>
+  <h2>Three-lens cross-check</h2>
+  <p class="h2sub">The unique finding of this review: the viewer <b>re-implements in JS what the Power BI ETL+DAX already do canonically</b> — so they can drift. The canonical model already solves two of the viewer's risks.</p>
+  <div class="legend">
+    <span><span class="dot d-view"></span>Viewer (127.html)</span>
+    <span><span class="dot d-pbi"></span>Power BI model (canonical)</span>
+    <span><span class="dot d-kb"></span>Lessons-Learned KB</span>
+  </div>
+  <div class="scroll">
+  <table class="x">
+    <thead><tr><th>Dimension</th><th><span class="dot d-view"></span>Viewer today</th><th><span class="dot d-pbi"></span>Power BI canonical</th><th><span class="dot d-kb"></span>KB says</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="lens">Unique flight key</td>
+        <td><code style="font-family:var(--mono);font-size:12px">CALLSIGN_DATE_STD</code> — coarse; collides across days</td>
+        <td><b>UNQ_AUTPER + USER + SUFFIX + CALC_REQUEST_TIME</b>; <code style="font-family:var(--mono);font-size:12px">Total_Flights = DISTINCTCOUNT(UNQ_AUTPER)</code></td>
+        <td>dedup key = CALLSIGN+DATE+STD (documented, coarse)</td>
+      </tr>
+      <tr>
+        <td class="lens">Timing data quality</td>
+        <td>No guard — averages include negatives &amp; unverified decomposition</td>
+        <td><b>Pct_Negative_Min_Elap</b> (negatives exist!) + <b>Timing_Identity_Check</b> (ELAPSED = ROUTOPT+VERTOPT, should=100%)</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td class="lens">AOS vs Human</td>
+        <td>USER=lido → AOS (matches)</td>
+        <td>Same; <code style="font-family:var(--mono);font-size:12px">Human_Intervention_Rate = DIVIDE(Mixed,AOS)</code> ✓ aligned</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td class="lens">Charts</td>
+        <td>Inline SVG + <b>2 Chart.js canvases (CDN)</b></td>
+        <td>n/a (visuals live in Power BI report)</td>
+        <td><b>"SVG Charts &gt; Chart.js/D3"</b> — build SVG programmatically; other apps use "None (SVG)"</td>
+      </tr>
+      <tr>
+        <td class="lens">Data-in-HTML</td>
+        <td>Parsed CSV held in memory; 953 KB monolith</td>
+        <td>CSV → Python/M ETL → parquet → thin model</td>
+        <td><b>P1 (not started):</b> extract data → <code style="font-family:var(--mono);font-size:12px">autoperf_data.json</code>, 931→~200 KB</td>
+      </tr>
+      <tr>
+        <td class="lens">Theme / usability</td>
+        <td>Dark only, 15 tabs, no search</td>
+        <td>n/a</td>
+        <td><b>P3:</b> light-mode toggle + tab search across sections</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <p style="margin:16px 2px 0;color:var(--muted);font-size:13.5px">→ <b style="color:var(--text)">Adopt the Power BI model as the source of truth.</b> Port <code style="font-family:var(--mono);font-size:12px">UNQ_AUTPER</code> and the two data-quality checks into the viewer, and the viewer stops drifting from the numbers Axel already trusts in Power BI.</p>
+</section>
+
+<!-- ROADMAP -->
+<section>
+  <h2>Prioritized improvement roadmap</h2>
+  <p class="h2sub">P1 changes a number someone could act on — do these first. <span class="flag pbi">PBI</span> = validated by the Power BI model · <span class="flag kb">KB</span> = already on your Lessons-Learned plan.</p>
+
+  <!-- P1 -->
+  <div class="lane">
+    <div class="lane-h"><span class="tag p1">P1</span><span class="lbl">Data fidelity — wrong numbers on screen today</span><span style="margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--green);white-space:nowrap">✓ 12 fixed &amp; verified</span></div>
+    <div class="scroll">
+    <table class="r">
+      <thead><tr><th>#</th><th>Bug &amp; trigger</th><th>Loc.</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td class="id">1</td><td><b>Time Impact always 0.</b> <code style="font-family:var(--mono);font-size:11.5px">parseTimeToMinutes</code> redefined; 2nd (HH:MM:SS-only) wins, so <code style="font-family:var(--mono);font-size:11.5px">TRIP_TIME="06:38"</code>→null → every Route Analysis time delta = 0.<span class="why">Headline metric; also breaks the modified-table time sort.</span></td><td class="ln">7694 / 12275</td><td class="eff">~15m</td></tr>
+        <tr><td class="id">3</td><td><b>No header validation → silent column misalignment.</b> Loads a 93-col CSV "fine"; every field past AIRLINE shifts, all tabs garbage.<span class="why">Highest safety payoff. Map by name / verify header.</span></td><td class="ln">4807</td><td class="eff">~1h</td></tr>
+        <tr><td class="id">11</td><td><b>LIDO % biased downward.</b> <code style="font-family:var(--mono);font-size:11.5px">extractWaypoints</code> keeps <code style="font-family:var(--mono);font-size:11.5px">DAVUS/N0485F320</code> whole → identical routes with step-climbs score as different → misclassified below 90%.<span class="why">Deflates the flagship metric. Strip <code style="font-family:var(--mono);font-size:11.5px">/.*$</code> per token.</span></td><td class="ln">7761</td><td class="eff">~15m</td></tr>
+        <tr><td class="id">7</td><td><b>Multi-day identity collisions.</b> Change-Mgmt selects by CALLSIGN <i>substring</i> across the whole set; LIDO/IFPL keyed by bare callsign → cross-day contamination.<span class="why">Key by flightKey. <span class="flag pbi">PBI</span> canonical key = UNQ_AUTPER+USER+SUFFIX+CALC_REQUEST_TIME.</span></td><td class="ln">11199 · 6979</td><td class="eff">~1–2h</td></tr>
+        <tr><td class="id">2</td><td><b>STD markers never render</b> (Timeline &amp; Gantt) — STD has no seconds, regex demands HH:MM:SS.<span class="why">Make seconds optional.</span></td><td class="ln">12275 · 11838</td><td class="eff">~10m</td></tr>
+        <tr><td class="id">4</td><td><b>Day-of-week TZ skew.</b> Parses STD as local, calls <code style="font-family:var(--mono);font-size:11.5px">getUTCDay()</code> → on UTC+3 Doha PC, pre-03:00 flights shift a day → wrong "Busiest Day".</td><td class="ln">5029</td><td class="eff">~10m</td></tr>
+        <tr><td class="id">5</td><td><b>Economic_Score degenerate.</b> <code style="font-family:var(--mono);font-size:11.5px">payload/500</code> tuned for old LOAD~475; with 127-col LOAD~50,000 the weight always saturates to 1.</td><td class="ln">5111</td><td class="eff">~15m</td></tr>
+        <tr><td class="id">6</td><td><b>Cancelled / MAN actions dropped.</b> <code style="font-family:var(--mono);font-size:11.5px">parseAtsHistory</code> regex ignores them though the app's own glossary lists 31 Cancelled — they vanish from counts &amp; anomaly logic.</td><td class="ln">8006</td><td class="eff">~10m</td></tr>
+        <tr><td class="id">8·9·10</td><td><b>Dead / wrong UI.</b> IFPL "Route Adopted" always "-" (wrong index); Payload Criticality column-sort off-by-N; Timeline "Time Window" filter read but never applied + all days collapsed onto one 24h axis.</td><td class="ln">14091·14792·12301</td><td class="eff">~2h</td></tr>
+        <tr><td class="id">12</td><td><b>Batch minors:</b> <code style="font-family:var(--mono);font-size:11.5px">parseFloat("06:38")</code>=6h; "00:00:01s"; multi-day <code style="font-family:var(--mono);font-size:11.5px">dataDate</code> shows first date only; Errors capped at 100 silently; duplicate <code style="font-family:var(--mono);font-size:11.5px">goToChangeMgmt</code>.</td><td class="ln">—</td><td class="eff">~1h</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- P2 -->
+  <div class="lane">
+    <div class="lane-h"><span class="tag p2">P2</span><span class="lbl">Latent value — analytics the 127 columns already support</span><span style="margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--green);white-space:nowrap">✓ 6 shipped</span></div>
+    <div class="scroll">
+    <table class="r">
+      <thead><tr><th>Idea</th><th>Columns</th><th>Effort</th></tr></thead>
+      <tbody>
+        <tr><td><b>Alternate-quality scoring</b> — rank ALTN_FUEL_1–4, flag where "SEQ BY USER" picked a costlier first alternate than min-fuel. <span class="why">Closest to Axel's planned-vs-flown / RAD workflow — do first.</span></td><td class="ln">ALTN_*, ALTN_SEQ</td><td class="eff">~1d</td></tr>
+        <tr><td><b>Hold-time delay attribution</b> — ATC vs WX hold per destination / time-of-day (which airports force hold fuel), not fleet totals.</td><td class="ln">ATC/WX_HOLD_TIME</td><td class="eff">~½d</td></tr>
+        <tr><td><b>CO₂ per route / per intent</b> — join into Route Analysis deltas &amp; city-pair table (today only global sums).</td><td class="ln">CO2_COST</td><td class="eff">~½d</td></tr>
+        <tr><td><b>Offload economics</b> — OFFLOAD kg vs tankering SAVINGS: MALTOW-driven or fuel-decision-driven?</td><td class="ln">OFFLOAD, MALTOW</td><td class="eff">~½d</td></tr>
+        <tr><td><b>Wind-optimization effectiveness</b> — AIR_DISTANCE vs TRIP_DISTANCE + wind comp per route (column currently only in the record modal).</td><td class="ln">AIR_DISTANCE</td><td class="eff">~½d</td></tr>
+        <tr><td><b>Configurable ANC rate</b> — replace hardcoded $2/nm that drives the Payload tab's headline ranking.</td><td class="ln">—</td><td class="eff">small</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- P3 -->
+  <div class="lane">
+    <div class="lane-h"><span class="tag p3">P3</span><span class="lbl">Architecture · robustness · performance</span><span style="margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--green);white-space:nowrap">✓ CDNs vendored + esc()</span></div>
+    <ul class="tight">
+      <li><b>Vendor the CDN deps</b> — inline Chart.js 3.9.1 + drop/inline xlsx, remove the Google-Fonts import → restore the air-gap property. Guard <code style="font-family:var(--mono);font-size:12px">typeof Chart</code>. <span class="flag kb">KB</span> — matches your "SVG&gt;Chart.js" lesson.</li>
+      <li><b>Escape untrusted fields before <code style="font-family:var(--mono);font-size:12px">innerHTML</code></b> — one <code style="font-family:var(--mono);font-size:12px">esc()</code> at template boundaries for ERROR_MESSAGE / ATS_HISTORY / ITEM15 / SKYVECTOR href.</li>
+      <li><b>Extract data → <code style="font-family:var(--mono);font-size:12px">autoperf_data.json</code></b>, add IndexedDB persistence so reload doesn't re-import. <span class="flag kb">KB</span> — this is your P1 "not started".</li>
+      <li><b>Split the JS monolith into IIFE modules</b> — bug #1 <i>is</i> the entropy cost of one 10,600-line scope; keep single-file distribution via trivial concat.</li>
+      <li><b>Robust CSV parser</b> (state-machine for escaped quotes / embedded newlines) + warn when a row ≠ 127 columns. <b>Debounce the render chain</b> (filters currently trigger ~10 full rebuilds) and virtualize the Timeline SVG / errors table.</li>
+      <li><b>Light-mode toggle + tab search</b> across the 15 sections. <span class="flag kb">KB</span> — your P3.</li>
+    </ul>
+    <p style="margin:12px 2px 0;color:var(--muted);font-size:13px"><b style="color:var(--green)">Shipped this pass:</b> CDN vendoring (Chart.js + xlsx inline, offline-safe) &amp; <code style="font-family:var(--mono);font-size:12px">esc()</code> XSS hardening. <b style="color:var(--muted)">Still open</b> (larger architectural work, deferred): JSON-data extraction + IndexedDB persistence, the module split, the state-machine CSV parser, render-chain debounce / Timeline virtualization, and light-mode + tab search.</p>
+  </div>
+</section>
+
+<!-- ORDER -->
+<section>
+  <h2>Recommended order</h2>
+  <div class="order">
+    <div class="seq">
+      <span class="a">①</span> P1&nbsp;#3 schema guard &nbsp;→&nbsp; <span class="a">②</span> #1 / #2 / #11 headline metrics &nbsp;→&nbsp; <span class="a">③</span> #7 / #8 / #9 identity &amp; UI &nbsp;→&nbsp; <span class="a">④</span> rest of P1<br>
+      <span class="b">⑤</span> vendor CDNs + <code style="font-family:var(--mono);font-size:12px">esc()</code> <b style="color:var(--muted);font-weight:400">before the next external demo</b> &nbsp;→&nbsp; <span class="c">⑥</span> P2 by dispatcher demand — <b style="color:var(--text)">alternate-quality &amp; hold-attribution first</b>
+    </div>
+    <p style="margin:14px 0 0;color:var(--muted);font-size:13.5px">And the highest-leverage structural move: <b style="color:var(--text)">make the Power BI model the source of truth</b> — port <code style="font-family:var(--mono);font-size:12px">UNQ_AUTPER</code> + the negative-elapsed &amp; timing-identity guards into the viewer so the two implementations can't drift.</p>
+  </div>
+</section>
+
+<footer>
+  <span>AutoPerf 127 · autoperf_viewer_127.html · 14,931 lines</span>
+  <span>Sources: line-by-line code read · Power BI "AutoPerf" model · Lessons-Learned KB</span>
+</footer>
+</div>
+</body>
+</html>
