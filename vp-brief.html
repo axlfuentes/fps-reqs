@@ -245,6 +245,28 @@
     font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
     border-bottom:1px dotted var(--line-strong)}
   .reset-link:hover{color:var(--maroon)}
+
+  /* ============ reconciliation appendix ============ */
+  .recon{max-width:1140px;margin:0 auto;padding:0 clamp(24px,6.5vw,104px) 72px}
+  .recon-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    box-shadow:var(--shadow);padding:22px 26px}
+  .recon-card .rk{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--gold);margin:0 0 6px}
+  .recon-card .rl{font-size:13.5px;color:var(--muted);margin:0 0 12px;line-height:1.55;max-width:80ch}
+  .recon-card .rl b{color:var(--ink)}
+  .recon-grid{display:flex;flex-wrap:wrap;gap:8px 26px;padding:10px 14px;
+    border:1px solid var(--line);border-radius:9px;background:var(--well);margin-top:8px}
+  .recon-grid .tag{align-self:center;font-family:var(--mono);font-size:9.5px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--gold);min-width:86px}
+  .recon-grid.anchors .tag{color:var(--ok)}
+  .recon-cell{min-width:110px}
+  .recon-cell .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--faint)}
+  .recon-cell .v{font-size:14px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+  .recon-warn{display:none;margin:12px 0 0;padding:10px 14px;border-left:3px solid #B3453A;
+    background:color-mix(in srgb,#B3453A 9%,transparent);border-radius:0 8px 8px 0;
+    font-size:13px;color:var(--ink);line-height:1.5}
+  .recon-warn.show{display:block}
 </style>
 </head>
 <body>
@@ -527,6 +549,17 @@ window.__VP_PAYLOAD = null;
   <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>10</b> / 10</span></div>
 </section>
 
+<!-- RECONCILIATION APPENDIX — acceptance check across the three surfaces -->
+<section class="recon" id="reconStrip" aria-label="Reconciliation — acceptance check">
+  <div class="recon-card">
+    <p class="rk">Reconciliation · acceptance check</p>
+    <p class="rl"><b>These four anchors + the fingerprint should match your AutoPerf screen and CSV.</b> 1)&nbsp;app screen → 2)&nbsp;exported CSV → 3)&nbsp;this deck — if all three read the same, the numbers survived the pipeline intact.</p>
+    <div class="recon-grid" id="reconFingerprint"><div class="tag">Fingerprint</div></div>
+    <div class="recon-grid anchors" id="reconAnchors"><div class="tag">Anchors</div></div>
+    <p class="recon-warn" id="reconWarn" role="alert"></p>
+  </div>
+</section>
+
 </div><!-- /deck -->
 
 <script>
@@ -569,6 +602,18 @@ window.__VP_PAYLOAD = null;
     ['Meta', 'Generated at', 'generated_at', 'UTC'],
     ['Meta', 'Generator', 'generator', ''],
     ['Meta', 'Privacy contract', 'privacy', ''],
+    ['Reconciliation', 'Period from', 'recon.period_from', 'date'],
+    ['Reconciliation', 'Period to', 'recon.period_to', 'date'],
+    ['Reconciliation', 'Calculation records', 'recon.records', 'records'],
+    ['Reconciliation', 'Generated at', 'recon.generated_at', 'UTC'],
+    ['Reconciliation', 'Generator / SYNC', 'recon.generator', ''],
+    ['Reconciliation', 'Realized tankering savings', 'recon.realized_savings_usd', 'USD'],
+    ['Reconciliation', 'Dispatchers active', 'recon.dispatchers', 'dispatchers'],
+    ['Reconciliation', 'Optimizer utilization of window', 'recon.utilization_pct', '%'],
+    ['Reconciliation', 'Filing completion rate', 'recon.completion_rate_pct', '%'],
+    ['Reconciliation', '#1 leverage route', 'recon.top_route_pair', 'city pair'],
+    ['Reconciliation', '#1 route criticality band', 'recon.top_route_band', 'band'],
+    ['Reconciliation', 'How to validate', 'recon.how_to_validate', ''],
     ['Period', 'First flight date', 'period.from', 'date'],
     ['Period', 'Last flight date', 'period.to', 'date'],
     ['Period', 'Operating days covered', 'period.days', 'days'],
@@ -605,6 +650,40 @@ window.__VP_PAYLOAD = null;
     ['Quality', 'Records with an error', 'quality.error_records', 'records'],
     ['Quality', 'Error rate', 'quality.error_rate_pct', '%']
   ];
+
+  /* ── Reconciliation anchors ─────────────────────────────────────────
+     The small set of ANCHOR figures + DATASET FINGERPRINT that must read
+     identically on the app screen, in the exported CSV, and on this deck.
+     Shape: [kind, label, recon path, unit, mirror path in the main
+     payload]. This list is a CONTRACT duplicated verbatim in
+     autoperf_viewer_127_backlog.html (same drift-proof pattern as
+     VP_CSV_SPEC — the verification harness asserts the two copies are
+     identical). */
+  var RECON_ANCHORS = [
+    ['Fingerprint', 'Period from', 'recon.period_from', 'date', 'period.from'],
+    ['Fingerprint', 'Period to', 'recon.period_to', 'date', 'period.to'],
+    ['Fingerprint', 'Calculation records', 'recon.records', 'records', 'volume.records'],
+    ['Fingerprint', 'Generated at', 'recon.generated_at', 'UTC', 'generated_at'],
+    ['Fingerprint', 'Generator / SYNC', 'recon.generator', '', 'generator'],
+    ['Anchor', 'Realized tankering savings', 'recon.realized_savings_usd', 'USD', 'tankering.realized_savings_usd'],
+    ['Anchor', 'Dispatchers active', 'recon.dispatchers', 'dispatchers', 'capacity.dispatchers'],
+    ['Anchor', 'Optimizer utilization of window', 'recon.utilization_pct', '%', 'capacity.utilization_pct'],
+    ['Anchor', 'Filing completion rate', 'recon.completion_rate_pct', '%', 'filing.completion_rate_pct'],
+    ['Anchor', '#1 leverage route', 'recon.top_route_pair', 'city pair', 'leverage_routes.0.pair'],
+    ['Anchor', '#1 route criticality band', 'recon.top_route_band', 'band', 'leverage_routes.0.band']
+  ];
+
+  /* Unit-aware display formatting for reconciliation anchors.
+     DUPLICATED VERBATIM in autoperf_viewer_127_backlog.html so the app
+     panel and this deck strip render each value identically. */
+  function vpReconFormat(value, unit) {
+    if (value === null || value === undefined || value === '') return '—';
+    if (unit === 'USD') return '$' + Math.round(value).toLocaleString('en-US');
+    if (unit === '%') return Number(value).toLocaleString('en-US') + '%';
+    if (unit === 'records' || unit === 'dispatchers' || unit === 'flights') return Number(value).toLocaleString('en-US');
+    if (unit === 'UTC') return String(value).slice(0, 16).replace('T', ' ') + 'Z';
+    return String(value);
+  }
 
   /* ── CSV parsing (RFC 4180, in-browser only) ── */
   function parseCsvRows(text) {
@@ -830,6 +909,36 @@ window.__VP_PAYLOAD = null;
       var tr0 = er.insertRow(-1);
       var c0 = tr0.insertCell(-1); c0.className = 'dim'; c0.colSpan = 3;
       c0.textContent = 'No categorised errors in this export.';
+    }
+    // reconciliation appendix — anchors + fingerprint from the sheet's
+    // Reconciliation section, cross-checked against the body rows
+    var fpBox = document.getElementById('reconFingerprint');
+    var anBox = document.getElementById('reconAnchors');
+    while (fpBox.children.length > 1) fpBox.removeChild(fpBox.lastChild);
+    while (anBox.children.length > 1) anBox.removeChild(anBox.lastChild);
+    var reconMismatches = [];
+    RECON_ANCHORS.forEach(function (a) {
+      var cell = document.createElement('div');
+      cell.className = 'recon-cell';
+      var kEl = document.createElement('div'); kEl.className = 'k'; kEl.textContent = a[1];
+      var vEl = document.createElement('div'); vEl.className = 'v';
+      vEl.textContent = vpReconFormat(getPath(p, a[2]), a[3]);
+      cell.appendChild(kEl); cell.appendChild(vEl);
+      (a[0] === 'Fingerprint' ? fpBox : anBox).appendChild(cell);
+      var reconV = getPath(p, a[2]);
+      var bodyV = getPath(p, a[4]);
+      if (JSON.stringify(reconV === undefined ? null : reconV) !== JSON.stringify(bodyV === undefined ? null : bodyV)) {
+        reconMismatches.push(a[1]);
+      }
+    });
+    var reconWarn = document.getElementById('reconWarn');
+    if (reconMismatches.length > 0) {
+      reconWarn.textContent = 'Internal consistency warning — the sheet’s Reconciliation rows disagree with its body for: ' +
+        reconMismatches.join(', ') + '. Re-export the CSV from AutoPerf before presenting.';
+      reconWarn.classList.add('show');
+    } else {
+      reconWarn.textContent = '';
+      reconWarn.classList.remove('show');
     }
     document.getElementById('gate').style.display = 'none';
     document.getElementById('deck').style.display = 'block';
