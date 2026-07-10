@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>AutoPerf 127 — Executive Brief (Live Numbers)</title>
+<style>
+  /* ============ tokens (shared design language with _vp_presentation_v2) ============ */
+  :root{
+    --bg:#F4EFE8; --surface:#FFFFFF; --raise:#FAF6F0; --well:#F0E9E0;
+    --ink:#241318; --muted:#63505A; --faint:#95818B; --line:#E3D7CB; --line-strong:#CDBBAE;
+    --maroon:#5C1032; --maroon-deep:#40081F; --gold:#96742E; --gold-soft:#B39154;
+    --ok:#2E6B4F; --warn:#8A5A1E;
+    --shadow:0 1px 2px rgba(64,8,31,.05), 0 22px 44px -28px rgba(64,8,31,.30);
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Cambria,Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,"Helvetica Neue",sans-serif;
+    --mono:ui-monospace,"Cascadia Code","SF Mono",Consolas,Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#130A0F; --surface:#1C1016; --raise:#241419; --well:#20121A;
+      --ink:#F2E9ED; --muted:#C0A7B2; --faint:#8A7080; --line:#39242F; --line-strong:#4C3140;
+      --maroon:#D77C9E; --maroon-deep:#E29AB4; --gold:#D3AF6C; --gold-soft:#B8945A;
+      --ok:#6FBF97; --warn:#D8A968;
+      --shadow:0 1px 0 rgba(255,255,255,.03), 0 26px 54px -32px rgba(0,0,0,.85);
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#F4EFE8; --surface:#FFFFFF; --raise:#FAF6F0; --well:#F0E9E0;
+    --ink:#241318; --muted:#63505A; --faint:#95818B; --line:#E3D7CB; --line-strong:#CDBBAE;
+    --maroon:#5C1032; --maroon-deep:#40081F; --gold:#96742E; --gold-soft:#B39154;
+    --ok:#2E6B4F; --warn:#8A5A1E;
+    --shadow:0 1px 2px rgba(64,8,31,.05), 0 22px 44px -28px rgba(64,8,31,.30);
+  }
+  :root[data-theme="dark"]{
+    --bg:#130A0F; --surface:#1C1016; --raise:#241419; --well:#20121A;
+    --ink:#F2E9ED; --muted:#C0A7B2; --faint:#8A7080; --line:#39242F; --line-strong:#4C3140;
+    --maroon:#D77C9E; --maroon-deep:#E29AB4; --gold:#D3AF6C; --gold-soft:#B8945A;
+    --ok:#6FBF97; --warn:#D8A968;
+    --shadow:0 1px 0 rgba(255,255,255,.03), 0 26px 54px -32px rgba(0,0,0,.85);
+  }
+
+  /* ============ base ============ */
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    font-size:16.5px;line-height:1.6;-webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;overflow-x:hidden}
+  ::selection{background:var(--maroon);color:var(--bg)}
+  a{color:var(--maroon)}
+  a:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:2px}
+
+  /* ============ paste gate ============ */
+  .gate{min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;
+    padding:48px clamp(20px,6vw,80px)}
+  .gate-card{max-width:720px;width:100%;background:var(--surface);border:1px solid var(--line);
+    border-radius:16px;box-shadow:var(--shadow);padding:clamp(28px,5vw,52px)}
+  .gate-card .kicker{margin-bottom:14px}
+  .gate-card h1{font-size:clamp(28px,4.6vw,42px);max-width:none;margin-bottom:14px}
+  .gate-lead{font-size:15.5px;color:var(--muted);line-height:1.6;margin:0 0 8px}
+  .gate-lead b{color:var(--ink)}
+  .gate-privacy{margin:18px 0 22px;padding:13px 18px 13px 20px;border-left:3px solid var(--ok);
+    background:color-mix(in srgb,var(--ok) 8%,transparent);border-radius:0 9px 9px 0;
+    font-size:13.5px;color:var(--muted);line-height:1.55}
+  .gate-privacy b{color:var(--ink)}
+  .gate-privacy .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ok);display:block;margin-bottom:4px}
+  textarea#pasteBox{width:100%;min-height:180px;resize:vertical;background:var(--well);color:var(--ink);
+    border:1px solid var(--line-strong);border-radius:10px;padding:14px 16px;
+    font-family:var(--mono);font-size:12.5px;line-height:1.5}
+  textarea#pasteBox:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .gate-actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:16px}
+  button.primary{background:var(--maroon);color:var(--bg);border:0;border-radius:9px;
+    padding:11px 26px;font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer}
+  button.primary:hover{background:var(--maroon-deep)}
+  button.primary:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .gate-hint{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.04em}
+  .gate-error{display:none;margin-top:16px;padding:13px 18px 13px 20px;border-left:3px solid #B3453A;
+    background:color-mix(in srgb,#B3453A 9%,transparent);border-radius:0 9px 9px 0;
+    font-size:13.5px;color:var(--ink);line-height:1.55}
+  .gate-error.show{display:block}
+  .gate-error .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+    color:#B3453A;display:block;margin-bottom:4px}
+
+  /* ============ slide frame ============ */
+  #deck{display:none}
+  .slide{min-height:100vh;min-height:100svh;position:relative;
+    display:flex;flex-direction:column;justify-content:center;
+    max-width:1140px;margin:0 auto;
+    padding:88px clamp(24px,6.5vw,104px) 108px}
+  .chrome{position:absolute;bottom:0;left:clamp(24px,6.5vw,104px);right:clamp(24px,6.5vw,104px);
+    padding:14px 0 26px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;gap:16px;
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--faint)}
+  .chrome .folio b{color:var(--maroon);font-weight:600}
+
+  .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--gold);margin:0 0 20px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .kicker .no{color:var(--maroon);font-weight:600}
+  .kicker .sep{color:var(--line-strong)}
+
+  h1{font-family:var(--serif);font-weight:500;font-size:clamp(36px,6.4vw,68px);line-height:1.04;
+    letter-spacing:-.014em;margin:0 0 24px;text-wrap:balance;max-width:22ch}
+  h1 .em{color:var(--maroon)}
+  h2{font-family:var(--serif);font-weight:500;font-size:clamp(28px,4.4vw,46px);line-height:1.08;
+    letter-spacing:-.012em;margin:0 0 18px;text-wrap:balance;max-width:26ch}
+  h2 .em{color:var(--maroon)}
+  .lead{font-size:clamp(17px,1.9vw,20px);color:var(--muted);max-width:62ch;margin:0;line-height:1.6}
+  .lead b{color:var(--ink);font-weight:600}
+  .lead + .lead{margin-top:14px}
+
+  /* ============ cover ============ */
+  .watermark{position:absolute;right:clamp(8px,4vw,48px);top:50%;transform:translateY(-54%);
+    font-family:var(--serif);font-weight:500;font-size:clamp(160px,30vw,420px);line-height:1;
+    color:var(--maroon);opacity:.055;pointer-events:none;user-select:none;letter-spacing:-.04em}
+  .cover-rule{width:64px;height:3px;background:var(--maroon);border:0;margin:0 0 30px}
+  .cover-meta{margin-top:46px;display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--line);
+    border-radius:10px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden;max-width:860px}
+  .cover-meta .cell{flex:1 1 170px;padding:14px 20px;border-right:1px solid var(--line);min-width:150px}
+  .cover-meta .cell:last-child{border-right:0}
+  .cover-meta .k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin:0 0 4px}
+  .cover-meta .v{font-size:14.5px;font-weight:600;color:var(--ink);margin:0}
+  .cover-meta .v.mn{font-family:var(--mono);font-weight:500;font-size:13px;color:var(--maroon)}
+  .live-badge{display:inline-flex;align-items:center;gap:8px;margin-top:26px;
+    font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ok);border:1px solid color-mix(in srgb,var(--ok) 45%,transparent);
+    background:color-mix(in srgb,var(--ok) 8%,transparent);border-radius:999px;padding:7px 16px}
+  .live-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--ok)}
+
+  /* ============ stat band ============ */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:0;
+    margin-top:44px;border:1px solid var(--line);border-radius:12px;background:var(--surface);
+    box-shadow:var(--shadow);overflow:hidden}
+  .stat{padding:22px 24px;border-right:1px solid var(--line)}
+  .stat:last-child{border-right:0}
+  @media (max-width:760px){
+    .stat{border-right:0;border-bottom:1px solid var(--line)}
+    .stat:last-child{border-bottom:0}
+  }
+  .stat .n{font-family:var(--serif);font-size:clamp(30px,3.6vw,40px);font-weight:500;
+    color:var(--maroon);line-height:1;font-variant-numeric:tabular-nums}
+  .stat .n small{font-size:.5em;color:var(--gold);letter-spacing:.02em}
+  .stat .l{font-size:13px;color:var(--muted);margin-top:9px;line-height:1.45}
+  .stat .src{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--faint);margin-top:8px}
+
+  /* ============ reading-pattern legend ============ */
+  .pattern{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-top:40px}
+  .pattern .step{flex:1 1 200px;background:var(--surface);border:1px solid var(--line);
+    border-top:3px solid var(--gold);border-radius:10px;padding:16px 18px;box-shadow:var(--shadow)}
+  .pattern .step.last{border-top-color:var(--maroon)}
+  .pattern .step .t{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--gold);margin:0 0 7px}
+  .pattern .step.last .t{color:var(--maroon)}
+  .pattern .step p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.5}
+  .pattern .arrow{align-self:center;color:var(--faint);font-size:18px;flex:0 0 auto}
+  @media (max-width:760px){.pattern .arrow{display:none}}
+
+  /* ============ worked-example ledger card ============ */
+  .wx{margin-top:36px;background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);overflow:hidden}
+  .wx-row{display:grid;grid-template-columns:176px 1fr;border-bottom:1px solid var(--line)}
+  .wx-row:last-child{border-bottom:0}
+  .wx-rail{padding:20px 18px;border-right:1px solid var(--line);background:var(--raise);
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;
+    color:var(--faint);line-height:1.5}
+  .wx-rail b{display:block;color:var(--gold);font-weight:600}
+  .wx-body{padding:20px 26px;min-width:0}
+  .wx-body p{margin:0;font-size:15.5px;color:var(--muted);line-height:1.6;max-width:66ch}
+  .wx-body p + p{margin-top:10px}
+  .wx-body b{color:var(--ink);font-weight:600}
+  .wx-q .wx-body p{font-family:var(--serif);font-size:clamp(18px,2.2vw,22px);color:var(--ink);
+    line-height:1.4;font-style:italic;max-width:52ch}
+  .wx-d{background:color-mix(in srgb,var(--maroon) 6%,transparent)}
+  .wx-d .wx-rail{background:color-mix(in srgb,var(--maroon) 10%,transparent);border-right-color:color-mix(in srgb,var(--maroon) 22%,var(--line))}
+  .wx-d .wx-rail b{color:var(--maroon)}
+  .wx-d .wx-body p{color:var(--ink);font-size:16px}
+  .wx-d .wx-body p b{color:var(--maroon)}
+  @media (max-width:720px){
+    .wx-row{grid-template-columns:1fr}
+    .wx-rail{border-right:0;border-bottom:1px solid var(--line);padding:12px 18px}
+    .wx-d .wx-rail{border-bottom-color:color-mix(in srgb,var(--maroon) 22%,var(--line))}
+  }
+
+  /* mono readout inside the "shows" row */
+  .readout{margin-top:16px;border:1px solid var(--line);border-radius:9px;background:var(--well);
+    overflow-x:auto}
+  .readout table{border-collapse:collapse;width:100%;min-width:480px;
+    font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+  .readout caption{text-align:left;padding:9px 14px 8px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+    border-bottom:1px solid var(--line)}
+  .readout caption .fd{color:var(--ok);font-weight:600}
+  .readout td,.readout th{text-align:left;padding:7px 14px;border-bottom:1px solid var(--line);
+    color:var(--muted);font-weight:400;vertical-align:top;white-space:nowrap}
+  .readout tr:last-child td{border-bottom:0}
+  .readout th{color:var(--faint);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase}
+  .readout td.k{color:var(--ink)}
+  .readout td.v{color:var(--maroon);font-weight:600}
+  .readout td.g{color:var(--ok);font-weight:600}
+  .readout td.w{color:var(--warn);font-weight:600}
+  .readout td.dim{color:var(--faint)}
+  .band-pill{display:inline-block;font-size:10px;letter-spacing:.1em;padding:2px 9px;border-radius:999px;
+    border:1px solid var(--line-strong);color:var(--muted)}
+  .band-CRITICAL{color:#B3453A;border-color:color-mix(in srgb,#B3453A 55%,transparent);background:color-mix(in srgb,#B3453A 9%,transparent)}
+  .band-HIGH{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 55%,transparent);background:color-mix(in srgb,var(--warn) 9%,transparent)}
+  .band-MODERATE{color:var(--gold);border-color:color-mix(in srgb,var(--gold) 55%,transparent);background:color-mix(in srgb,var(--gold) 9%,transparent)}
+  .band-LOW{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 55%,transparent);background:color-mix(in srgb,var(--ok) 9%,transparent)}
+
+  /* honesty footnote */
+  .wx-note{margin:14px 0 0;padding:13px 18px 13px 20px;border-left:3px solid var(--gold);
+    background:color-mix(in srgb,var(--gold) 7%,transparent);border-radius:0 9px 9px 0;
+    font-size:13.5px;color:var(--muted);line-height:1.55;max-width:78ch}
+  .wx-note b{color:var(--ink);font-weight:600}
+  .wx-note .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--gold);display:block;margin-bottom:4px}
+
+  /* ============ assurance list ============ */
+  .assure{list-style:none;margin:36px 0 0;padding:0;max-width:74ch;display:grid;gap:0;
+    border:1px solid var(--line);border-radius:12px;background:var(--surface);
+    box-shadow:var(--shadow);overflow:hidden}
+  .assure li{display:grid;grid-template-columns:200px 1fr;border-bottom:1px solid var(--line)}
+  .assure li:last-child{border-bottom:0}
+  .assure .h{padding:16px 20px;background:var(--raise);border-right:1px solid var(--line);
+    font-weight:600;font-size:14.5px;color:var(--maroon);line-height:1.4}
+  .assure .d{padding:16px 22px;font-size:14.5px;color:var(--muted);line-height:1.55}
+  .assure .d b{color:var(--ink)}
+  @media (max-width:680px){
+    .assure li{grid-template-columns:1fr}
+    .assure .h{border-right:0;border-bottom:1px solid var(--line);padding:12px 20px}
+  }
+
+  /* ============ closing ============ */
+  .close-meta{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);
+    display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 24px;
+    font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.04em}
+  .close-meta a{color:var(--maroon);text-decoration:none;
+    border-bottom:1px solid color-mix(in srgb,var(--maroon) 40%,transparent)}
+  .close-meta a:hover{border-bottom-color:var(--maroon)}
+  .quiet{color:var(--faint);font-size:12px;font-family:var(--mono);letter-spacing:.05em;margin:16px 0 0}
+  .reset-link{background:none;border:0;padding:0;cursor:pointer;font-family:var(--mono);
+    font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+    border-bottom:1px dotted var(--line-strong)}
+  .reset-link:hover{color:var(--maroon)}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ EMBEDDED-PAYLOAD SLOT (offline path) ═══════════
+     To ship a self-contained deck, replace `null` below with the CSV text
+     produced by AutoPerf 127 → "⧉ Copy VP Summary (CSV)", wrapped in
+     backticks, e.g.  window.__VP_PAYLOAD = `Section,Metric,Value,Unit
+     Meta,Schema,autoperf.vp-summary,
+     ...`;
+     Aggregates only — the sheet contract forbids per-flight rows and user
+     identities. It is parsed with the same in-browser parser as a paste. -->
+<script id="vp-embedded-payload">
+window.__VP_PAYLOAD = null;
+</script>
+
+<!-- ═══════════ PASTE GATE ═══════════ -->
+<section class="gate" id="gate" aria-label="Load your AutoPerf VP Summary">
+  <div class="gate-card">
+    <p class="kicker">Qatar Airways <span class="sep">·</span> Flight Planning Systems <span class="sep">·</span> Executive brief</p>
+    <h1>Paste your AutoPerf <span class="em">VP&nbsp;Summary (CSV).</span></h1>
+    <p class="gate-lead">In AutoPerf 127, load your extracts, then press <b>“⧉ Copy VP Summary (CSV)”</b> (Overview tab). The sheet is human-readable — <b>review the numbers yourself first</b> — then paste it below and render: the deck fills every slide with <b>your real aggregate figures</b>.</p>
+    <div class="gate-privacy">
+      <span class="lbl">Privacy — how this stays safe</span>
+      <b>Everything happens inside your browser tab.</b> This page contains no upload, fetch, or network code — pasted numbers are parsed and rendered locally and vanish when the tab closes. The sheet itself is <b>aggregates only</b>: totals, counts and rates. No flight record, route string or dispatcher identity ever leaves the source PC.
+    </div>
+    <textarea id="pasteBox" spellcheck="false" aria-label="Paste the VP Summary CSV here" placeholder="Section,Metric,Value,Unit&#10;Meta,Schema,autoperf.vp-summary,&#10;Meta,Schema version,1,&#10;…"></textarea>
+    <div class="gate-actions">
+      <button class="primary" id="renderBtn" type="button">Render the brief</button>
+      <span class="gate-hint">expects Section,Metric,Value,Unit CSV · schema autoperf.vp-summary · v1</span>
+    </div>
+    <div class="gate-error" id="gateError" role="alert"><span class="lbl">Could not read that</span><span id="gateErrorMsg"></span></div>
+  </div>
+</section>
+
+<!-- ═══════════ DECK ═══════════ -->
+<div id="deck">
+
+<!-- 01 · COVER -->
+<section class="slide" id="s01" aria-label="Cover">
+  <div class="watermark" aria-hidden="true">127</div>
+  <p class="kicker">Qatar Airways <span class="sep">·</span> Flight Planning Systems <span class="sep">·</span> Executive brief</p>
+  <hr class="cover-rule">
+  <h1>The flight plans we already produce, <span class="em">turned into decisions.</span></h1>
+  <p class="lead">AutoPerf 127 reads the calculation record behind every flight plan — <b>127 data fields per plan</b> — and answers the questions leadership actually asks about fuel, staffing, reliability and routes. This edition of the brief is rendered from a <b>live aggregate export</b> of the operation’s own data.</p>
+  <span class="live-badge"><span class="dot" aria-hidden="true"></span> Real numbers · <span data-vp="derived.period_label">—</span></span>
+  <div class="cover-meta">
+    <div class="cell"><p class="k">Prepared for</p><p class="v">VP review</p></div>
+    <div class="cell"><p class="k">Data period</p><p class="v mn" data-vp="derived.period_label">—</p></div>
+    <div class="cell"><p class="k">Calculation records</p><p class="v mn" data-vp="volume.records" data-fmt="int">—</p></div>
+    <div class="cell"><p class="k">Export generated</p><p class="v mn" data-vp="derived.generated_label">—</p></div>
+    <div class="cell"><p class="k">Version</p><p class="v mn" data-vp="derived.sync_label">—</p></div>
+  </div>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>01</b> / 10</span></div>
+</section>
+
+<!-- 02 · THE DATASET -->
+<section class="slide" id="s02" aria-label="The dataset behind this brief">
+  <p class="kicker"><span class="no">A</span> <span class="sep">·</span> The dataset behind this brief</p>
+  <h2>Every number that follows <span class="em">comes from this record.</span></h2>
+  <p class="lead">One aggregate export, produced offline by AutoPerf 127 from the operation’s own calculation logs. No sampling, no estimates — the full record for the period, rolled up on the source PC before anything reached this page.</p>
+  <div class="stats">
+    <div class="stat"><div class="n" data-vp="volume.records" data-fmt="int">—</div><div class="l">calculation records analysed</div><div class="src">From export · <span data-vp="derived.period_label">—</span></div></div>
+    <div class="stat"><div class="n" data-vp="volume.flights" data-fmt="int">—</div><div class="l">distinct flights reconstructed from those records</div><div class="src">From export</div></div>
+    <div class="stat"><div class="n" data-vp="capacity.dispatchers" data-fmt="int">—</div><div class="l">dispatchers whose work the period reflects</div><div class="src">From export · count only, no identities</div></div>
+    <div class="stat"><div class="n"><span data-vp="volume.aos_share_pct" data-fmt="pct">—</span></div><div class="l">of records produced by AOS automation; the rest are human dispatch work</div><div class="src">From export</div></div>
+  </div>
+  <p class="quiet">Coverage: <span data-vp="derived.days_label">—</span> · <span data-vp="volume.city_pairs" data-fmt="int">—</span> city pairs · <span data-vp="volume.files_loaded" data-fmt="int">—</span> source file(s) merged &amp; de-duplicated in AutoPerf.</p>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>02</b> / 10</span></div>
+</section>
+
+<!-- 03 · WHAT IT IS + HOW TO READ -->
+<section class="slide" id="s03" aria-label="What it is and how to read this brief">
+  <p class="kicker"><span class="no">B</span> <span class="sep">·</span> What AutoPerf 127 is</p>
+  <h2>One file. Any laptop. Offline. <span class="em">No data leaves the building.</span></h2>
+  <p class="lead">A single HTML console that opens in a standard browser — no server, no installation, no vendor. An analyst drops in the operation’s own log files and the tool turns them into decision-ready views. For this brief the console exported <b>one small block of roll-up numbers</b>; the raw records stayed where they live.</p>
+  <p class="lead">Each benefit follows one pattern:</p>
+  <div class="pattern">
+    <div class="step"><p class="t">The question</p><p>A real operational question, as leadership would ask it.</p></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="step"><p class="t">What AutoPerf shows</p><p>The measured evidence — this time with the period’s real figures, limits stated.</p></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="step last"><p class="t">The decision it enables</p><p>What a manager can now decide that they could not before.</p></div>
+  </div>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>03</b> / 10</span></div>
+</section>
+
+<!-- 04 · EXAMPLE 1 — FUEL / TANKERING -->
+<section class="slide" id="s04" aria-label="Worked example 1 — fuel and tankering">
+  <p class="kicker"><span class="no">Example 1 of 5</span> <span class="sep">·</span> Fuel &amp; tankering</p>
+  <h2>Tankering, read as <span class="em">a reviewable pattern.</span></h2>
+  <div class="wx">
+    <div class="wx-row wx-q">
+      <div class="wx-rail"><b>The question</b></div>
+      <div class="wx-body"><p>“How much tankering value did we actually realize this period — and how much favorable opportunity went untaken?”</p></div>
+    </div>
+    <div class="wx-row wx-s">
+      <div class="wx-rail"><b>What AutoPerf shows</b></div>
+      <div class="wx-body">
+        <p>Every plan carries an <b>indicative tankering factor</b> (GAIN/LOSS, in $ per tonne) whether or not extra fuel was carried. <b>SAVINGS</b> is recorded only when the uplift was actually taken — the one realized number. Counted one representative plan per flight, this period reads:</p>
+        <div class="readout">
+          <table>
+            <caption>Tankering · <span data-vp="derived.period_label">—</span> · <span class="fd">from pasted export</span></caption>
+            <tbody>
+              <tr><td class="k">Realized SAVINGS (actual)</td><td class="g" data-vp="tankering.realized_savings_usd" data-fmt="usd">—</td><td class="dim"><span data-vp="tankering.tankered_flights" data-fmt="int">—</span> tanker-performed flights · avg <span data-vp="tankering.avg_savings_per_flight_usd" data-fmt="usd">—</span>/flight</td></tr>
+              <tr><td class="k">Typical GAIN factor</td><td class="v"><span data-vp="tankering.typical_gain_usd_per_t" data-fmt="num">—</span> $/t</td><td class="dim">median indicative factor — not booked money</td></tr>
+              <tr><td class="k">Favorable factor, uplift not taken</td><td class="v" data-vp="tankering.favorable_not_tankered" data-fmt="int">—</td><td class="dim">flights to review, net of weight caps</td></tr>
+              <tr><td class="k">Headroom-limited (MAXB/MAXH)</td><td class="w" data-vp="tankering.headroom_capped" data-fmt="int">—</td><td class="dim">wanted more tankering than limits allowed</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="wx-row wx-d">
+      <div class="wx-rail"><b>The decision it enables</b></div>
+      <div class="wx-body"><p>The fuel team stops debating single flights. Where the factor is <b>repeatedly favorable and uplift is repeatedly not taken</b> — net of weight caps — that is a station-level policy conversation, validated afterwards against realized SAVINGS, not projections.</p></div>
+    </div>
+  </div>
+  <p class="wx-note"><span class="lbl">Read honestly</span><b>GAIN/LOSS are indicative $-per-tonne factors, not money earned.</b> SAVINGS — recorded only when tankering was actually performed — is the sole realized figure. This brief never adds the two together.</p>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>04</b> / 10</span></div>
+</section>
+
+<!-- 05 · EXAMPLE 2 — WORKFORCE -->
+<section class="slide" id="s05" aria-label="Worked example 2 — workforce and staffing">
+  <p class="kicker"><span class="no">Example 2 of 5</span> <span class="sep">·</span> Workforce &amp; capacity</p>
+  <h2>Capacity by shift, measured — <span class="em">with its limits stated.</span></h2>
+  <div class="wx">
+    <div class="wx-row wx-q">
+      <div class="wx-rail"><b>The question</b></div>
+      <div class="wx-body"><p>“How does computing demand actually sit across the day and night desks — and what does the roster hold in reserve?”</p></div>
+    </div>
+    <div class="wx-row wx-s">
+      <div class="wx-rail"><b>What AutoPerf shows</b></div>
+      <div class="wx-body">
+        <p>The Dispatcher Efficiency view works in real <b>12-hour Doha roster shifts</b> (day 06:00–18:00, night 18:00–06:00 local). <b>Working window</b> = the rostered hours with activity. <b>Processing</b> = wall-clock time the optimizer was actually computing, with parallel calculations merged so they count once. This period, merging removed a <b data-vp="capacity.parallel_overcount_corrected_pct" data-fmt="pct">—</b> over-count that naïve summing would have reported.</p>
+        <div class="readout">
+          <table>
+            <caption>Dispatcher capacity · <span data-vp="derived.period_label">—</span> · <span class="fd">from pasted export</span> · parallel merge applied</caption>
+            <tbody>
+              <tr><td class="k">Dispatchers active</td><td class="v" data-vp="capacity.dispatchers" data-fmt="int">—</td><td class="dim"><span data-vp="capacity.human_evaluations" data-fmt="int">—</span> human calculation runs</td></tr>
+              <tr><td class="k">Working window (all desks)</td><td class="v"><span data-vp="capacity.window_hours" data-fmt="num">—</span> h</td><td class="dim">12-h roster blocks holding activity</td></tr>
+              <tr><td class="k">Optimizer processing</td><td class="v"><span data-vp="capacity.processing_hours" data-fmt="num">—</span> h</td><td class="dim">optimizer busy <span data-vp="capacity.utilization_pct" data-fmt="pct">—</span> of the window</td></tr>
+              <tr><td class="k">Day vs night activity</td><td class="v" data-vp="derived.day_night_label">—</td><td class="dim">calculation runs per 12-h block type</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="wx-row wx-d">
+      <div class="wx-rail"><b>The decision it enables</b></div>
+      <div class="wx-body"><p>Leadership sees where computational workload sits across the 24-hour operation — <b>evidence for shift balancing and surge planning</b> before any recruitment or rostering conversation, measured the same way every week.</p></div>
+    </div>
+  </div>
+  <p class="wx-note"><span class="lbl">Read honestly</span><b>“Processing” counts machine compute time only.</b> Briefing, coordination, phone calls and monitoring never enter the log — so the utilization figure is an <b>optimizer-utilisation indicator for capacity planning, not a measure of how busy a dispatcher is</b>. It must not be read as a productivity scorecard.</p>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>05</b> / 10</span></div>
+</section>
+
+<!-- 06 · EXAMPLE 3 — RELIABILITY / FILING -->
+<section class="slide" id="s06" aria-label="Worked example 3 — filing reliability">
+  <p class="kicker"><span class="no">Example 3 of 5</span> <span class="sep">·</span> Filing reliability</p>
+  <h2>“Sent” is not the same as <span class="em">“squared away with ATC.”</span></h2>
+  <div class="wx">
+    <div class="wx-row wx-q">
+      <div class="wx-rail"><b>The question</b></div>
+      <div class="wx-body"><p>“The plan says it was sent to the crew. Is the flight actually complete with air traffic control?”</p></div>
+    </div>
+    <div class="wx-row wx-s">
+      <div class="wx-rail"><b>What AutoPerf shows</b></div>
+      <div class="wx-body">
+        <p>A flight can be marked sent while its ATS filing lifecycle is not fully complete — a change filed but never acknowledged, or a rejection left dangling. AutoPerf reconstructs the full lifecycle per flight and tags only clean ones <b>Completed</b>. This period:</p>
+        <div class="readout">
+          <table>
+            <caption>Flight-level completion tag · <span data-vp="derived.period_label">—</span> · <span class="fd">from pasted export</span></caption>
+            <tbody>
+              <tr><td class="k">Flights with ATS activity</td><td class="v" data-vp="filing.flights_with_ats" data-fmt="int">—</td><td class="dim">full lifecycle reconstructed per flight</td></tr>
+              <tr><td class="k">Fully completed</td><td class="g" data-vp="filing.completed" data-fmt="int">—</td><td class="dim">sent ∧ lifecycle clean — <span data-vp="filing.completion_rate_pct" data-fmt="pct">—</span> completion</td></tr>
+              <tr><td class="k">Flagged for a look</td><td class="v" data-vp="filing.flagged" data-fmt="int">—</td><td class="dim">marked sent, lifecycle not closed</td></tr>
+              <tr><td class="k">Filed to ATC</td><td class="k" data-vp="filing.filed_flights" data-fmt="int">—</td><td class="dim">flights with a filing on record</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="wx-row wx-d">
+      <div class="wx-rail"><b>The decision it enables</b></div>
+      <div class="wx-body"><p>Gaps surface <b>while there is still time to act — before departure, not in a call from the gate</b>. The same filter turns weekly filing quality into one trackable number a duty manager can own.</p></div>
+    </div>
+  </div>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>06</b> / 10</span></div>
+</section>
+
+<!-- 07 · EXAMPLE 4 — ROUTE / PAYLOAD -->
+<section class="slide" id="s07" aria-label="Worked example 4 — route and payload">
+  <p class="kicker"><span class="no">Example 4 of 5</span> <span class="sep">·</span> Routes &amp; payload</p>
+  <h2>Spend review effort where a small change <span class="em">moves the most.</span></h2>
+  <div class="wx">
+    <div class="wx-row wx-q">
+      <div class="wx-rail"><b>The question</b></div>
+      <div class="wx-body"><p>“Across the network, which sectors should get routing and fuel attention first?”</p></div>
+    </div>
+    <div class="wx-row wx-s">
+      <div class="wx-rail"><b>What AutoPerf shows</b></div>
+      <div class="wx-body">
+        <p>Payload-criticality bands rank city pairs by how close they operate to <b>structural weight limits</b> (max take-off, landing and zero-fuel weight), weighted by the cost flowing over the pair. The period’s top leverage sectors:</p>
+        <div class="readout">
+          <table>
+            <caption>Top leverage city pairs · <span data-vp="derived.period_label">—</span> · <span class="fd">from pasted export</span></caption>
+            <thead><tr><th>#</th><th>Sector</th><th>Flights</th><th>Weight-limit use</th><th>Band</th></tr></thead>
+            <tbody id="leverageRows"><tr><td class="dim" colspan="5">—</td></tr></tbody>
+          </table>
+        </div>
+        <p style="margin-top:12px;font-size:13px;color:var(--faint)">Haul mix of the period’s flights: <span data-vp="derived.haul_label" style="color:var(--muted)">—</span>.</p>
+      </div>
+    </div>
+    <div class="wx-row wx-d">
+      <div class="wx-rail"><b>The decision it enables</b></div>
+      <div class="wx-body"><p>Route-review and tankering attention gets <b>ranked by leverage instead of by anecdote</b> — the sectors flying closest to their limits are examined first, because that is where one decision moves the most payload.</p></div>
+    </div>
+  </div>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>07</b> / 10</span></div>
+</section>
+
+<!-- 08 · EXAMPLE 5 — CALCULATION QUALITY -->
+<section class="slide" id="s08" aria-label="Worked example 5 — calculation quality">
+  <p class="kicker"><span class="no">Example 5 of 5</span> <span class="sep">·</span> Calculation quality</p>
+  <h2>Know <span class="em">why calculations fail</span> — and chase the right cause.</h2>
+  <div class="wx">
+    <div class="wx-row wx-q">
+      <div class="wx-rail"><b>The question</b></div>
+      <div class="wx-body"><p>“When the optimizer can’t produce a plan, is it airspace closures, our own data, or the system — and is it getting worse?”</p></div>
+    </div>
+    <div class="wx-row wx-s">
+      <div class="wx-rail"><b>What AutoPerf shows</b></div>
+      <div class="wx-body">
+        <p>Every failed calculation carries a categorised error message. Grouped over the period, the noise becomes a ranked, trackable list:</p>
+        <div class="readout">
+          <table>
+            <caption>Error profile · <span data-vp="derived.period_label">—</span> · <span class="fd">from pasted export</span></caption>
+            <tbody id="errorRows">
+              <tr><td class="k">Records with an error</td><td class="v" data-vp="quality.error_records" data-fmt="int">—</td><td class="dim"><span data-vp="quality.error_rate_pct" data-fmt="pct">—</span> of all calculation records</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="wx-row wx-d">
+      <div class="wx-rail"><b>The decision it enables</b></div>
+      <div class="wx-body"><p>Fix effort goes to the <b>largest measured cause, not the loudest anecdote</b> — and next period’s export shows whether the fix moved the number.</p></div>
+    </div>
+  </div>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>08</b> / 10</span></div>
+</section>
+
+<!-- 09 · LOW RISK -->
+<section class="slide" id="s09" aria-label="Why it is low risk">
+  <p class="kicker"><span class="no">C</span> <span class="sep">·</span> Why it is low risk</p>
+  <h2>Enterprise-safe <span class="em">by construction.</span></h2>
+  <p class="lead">The properties a review committee asks about first are not add-ons — they are how the tool, and this brief, are built.</p>
+  <ul class="assure">
+    <li><div class="h">Private</div><div class="d"><b>No flight data ever leaves the PC.</b> The console runs entirely offline. This brief received only roll-up totals — no flight record, no route string, no dispatcher identity.</div></li>
+    <li><div class="h">This page is inert</div><div class="d">The brief renders <b>entirely in the viewer’s browser</b>: no upload, no analytics, no external calls. Close the tab and the pasted numbers are gone.</div></li>
+    <li><div class="h">Nothing to maintain</div><div class="d">A <b>single file</b> — no server, no database, no accounts, no vendor contract to manage or renew.</div></li>
+    <li><div class="h">Zero licensing cost</div><div class="d">Built in-house on data the operation <b>already generates every day</b>. No new spend to start, none to continue.</div></li>
+    <li><div class="h">One version of the truth</div><div class="d">The tool, its documentation and this brief carry <b>one synchronized version stamp — <span data-vp="derived.sync_label">—</span></b> — so everyone reads the same build.</div></li>
+  </ul>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>09</b> / 10</span></div>
+</section>
+
+<!-- 10 · CLOSING -->
+<section class="slide" id="s10" aria-label="Closing">
+  <p class="kicker"><span class="no">D</span> <span class="sep">·</span> The opportunity</p>
+  <h1>Proven in-house. <span class="em">Ready to scale.</span></h1>
+  <p class="lead">One period of the operation’s own data — <b><span data-vp="volume.records" data-fmt="int">—</span> calculation records, <span data-vp="volume.flights" data-fmt="int">—</span> flights, <span data-vp="capacity.dispatchers" data-fmt="int">—</span> dispatchers</b> — already answers questions about fuel, staffing, reliability and routes, with the caveats stated, at zero incremental cost. The capability is live and verified. The decision on the table is how widely to apply it: more desks, more weeks of history, and the improvement register it has opened.</p>
+  <div class="close-meta">
+    <span>Flight Planning Systems · prepared for VP review</span>
+    <span>Full engineering record: <a href="https://axlfuentes.github.io/fps-reqs/">axlfuentes.github.io/fps-reqs</a></span>
+  </div>
+  <p class="quiet">Aggregated figures only — no per-flight operational data is present in this page or its payload. Source export generated <span data-vp="derived.generated_label">—</span>.</p>
+  <p class="quiet"><button class="reset-link" id="resetBtn" type="button">↺ render with a different export</button></p>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>10</b> / 10</span></div>
+</section>
+
+</div><!-- /deck -->
+
+<script>
+(function () {
+  'use strict';
+  var EXPECTED_SCHEMA = 'autoperf.vp-summary';
+  var EXPECTED_VERSION = 1;
+
+  /* ── formatters ── */
+  function isNum(v) { return typeof v === 'number' && isFinite(v); }
+  var FMT = {
+    int:  function (v) { return isNum(v) ? Math.round(v).toLocaleString('en-US') : '—'; },
+    num:  function (v) { return isNum(v) ? (Math.round(v * 10) / 10).toLocaleString('en-US') : '—'; },
+    usd:  function (v) { return isNum(v) ? '$' + Math.round(v).toLocaleString('en-US') : '—'; },
+    pct:  function (v) { return isNum(v) ? (Math.round(v * 10) / 10).toLocaleString('en-US') + '%' : '—'; },
+    raw:  function (v) { return (v === null || v === undefined || v === '') ? '—' : String(v); }
+  };
+
+  function getPath(obj, path) {
+    var parts = path.split('.');
+    var cur = obj;
+    for (var i = 0; i < parts.length; i++) {
+      if (cur === null || cur === undefined) return undefined;
+      cur = cur[parts[i]];
+    }
+    return cur;
+  }
+
+  /* ── CSV sheet contract ─────────────────────────────────────────────
+     The (Section, Metric) LABEL STRINGS below are the contract with the
+     AutoPerf 127 exporter ("⧉ Copy VP Summary (CSV)"): the app carries an
+     IDENTICAL VP_CSV_SPEC list and writes rows under these exact labels.
+     Change a label there → change it here, or parsing names the missing
+     row. Layout: Section,Metric,Value,Unit; blank rows between sections;
+     array sections (error categories, leverage routes, haul mix) are
+     matched by pattern, not listed here. */
+  var VP_CSV_SPEC = [
+    ['Meta', 'Schema', 'schema', ''],
+    ['Meta', 'Schema version', 'schema_version', ''],
+    ['Meta', 'Generated at', 'generated_at', 'UTC'],
+    ['Meta', 'Generator', 'generator', ''],
+    ['Meta', 'Privacy contract', 'privacy', ''],
+    ['Period', 'First flight date', 'period.from', 'date'],
+    ['Period', 'Last flight date', 'period.to', 'date'],
+    ['Period', 'Operating days covered', 'period.days', 'days'],
+    ['Volume', 'Calculation records', 'volume.records', 'records'],
+    ['Volume', 'Distinct flights', 'volume.flights', 'flights'],
+    ['Volume', 'AOS (automated) records', 'volume.aos_records', 'records'],
+    ['Volume', 'Human (IFPL) records', 'volume.human_records', 'records'],
+    ['Volume', 'AOS share of records', 'volume.aos_share_pct', '%'],
+    ['Volume', 'Airlines in extract', 'volume.airlines', 'airlines'],
+    ['Volume', 'City pairs seen', 'volume.city_pairs', 'pairs'],
+    ['Volume', 'Source files merged', 'volume.files_loaded', 'files'],
+    ['Fuel & Tankering', 'Realized tankering savings', 'tankering.realized_savings_usd', 'USD'],
+    ['Fuel & Tankering', 'Tankered flights', 'tankering.tankered_flights', 'flights'],
+    ['Fuel & Tankering', 'Average savings per tankered flight', 'tankering.avg_savings_per_flight_usd', 'USD'],
+    ['Fuel & Tankering', 'Typical GAIN factor (median, indicative)', 'tankering.typical_gain_usd_per_t', 'USD/tonne'],
+    ['Fuel & Tankering', 'Favorable factor but not tankered', 'tankering.favorable_not_tankered', 'flights'],
+    ['Fuel & Tankering', 'Headroom-limited (MAXB/MAXH)', 'tankering.headroom_capped', 'flights'],
+    ['Fuel & Tankering', 'PRICE-tankering share of records', 'tankering.price_tankering_rate_pct', '%'],
+    ['Capacity', 'Dispatchers active', 'capacity.dispatchers', 'dispatchers'],
+    ['Capacity', 'Human calculation runs', 'capacity.human_evaluations', 'runs'],
+    ['Capacity', 'Roster window (12h blocks with activity)', 'capacity.window_hours', 'hours'],
+    ['Capacity', 'Optimizer processing (parallel-merged)', 'capacity.processing_hours', 'hours'],
+    ['Capacity', 'Optimizer utilization of window', 'capacity.utilization_pct', '%'],
+    ['Capacity', 'Parallel over-count removed by merge', 'capacity.parallel_overcount_corrected_pct', '%'],
+    ['Capacity', 'Day-shift calculation runs', 'capacity.day_shift_evals', 'runs'],
+    ['Capacity', 'Night-shift calculation runs', 'capacity.night_shift_evals', 'runs'],
+    ['Capacity', 'Shift length', 'capacity.shift_hours', 'hours'],
+    ['Capacity', 'Timezone offset (local = UTC+)', 'capacity.tz_offset_hours', 'hours'],
+    ['Filing', 'Flights with ATS activity', 'filing.flights_with_ats', 'flights'],
+    ['Filing', 'Fully completed (lifecycle clean)', 'filing.completed', 'flights'],
+    ['Filing', 'Flagged (sent, lifecycle not closed)', 'filing.flagged', 'flights'],
+    ['Filing', 'Completion rate', 'filing.completion_rate_pct', '%'],
+    ['Filing', 'Filed to ATC', 'filing.filed_flights', 'flights'],
+    ['Quality', 'Records with an error', 'quality.error_records', 'records'],
+    ['Quality', 'Error rate', 'quality.error_rate_pct', '%']
+  ];
+
+  /* ── CSV parsing (RFC 4180, in-browser only) ── */
+  function parseCsvRows(text) {
+    var rows = [], row = [], field = '', inQ = false, i = 0, c;
+    while (i < text.length) {
+      c = text[i];
+      if (inQ) {
+        if (c === '"') {
+          if (text[i + 1] === '"') { field += '"'; i += 2; continue; }
+          inQ = false; i++; continue;
+        }
+        field += c; i++; continue;
+      }
+      if (c === '"') { inQ = true; i++; continue; }
+      if (c === ',') { row.push(field); field = ''; i++; continue; }
+      if (c === '\r') { i++; continue; }
+      if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; continue; }
+      field += c; i++;
+    }
+    if (field !== '' || row.length > 0) { row.push(field); rows.push(row); }
+    return rows;
+  }
+
+  function vpNormLabel(s) {
+    return String(s === null || s === undefined ? '' : s).replace(/\s+/g, ' ').trim().toLowerCase();
+  }
+
+  function parseVpCsv(text) {
+    var raw = String(text === null || text === undefined ? '' : text).replace(/^\uFEFF/, '');
+    if (raw.trim() === '') {
+      throw new Error('Nothing pasted yet. In AutoPerf 127, press “⧉ Copy VP Summary (CSV)”, then paste here.');
+    }
+    if (raw.trim().charAt(0) === '{') {
+      throw new Error('This looks like JSON — the VP Summary pipeline uses a Section,Metric,Value,Unit CSV. In AutoPerf 127 press “⧉ Copy VP Summary (CSV)” and paste that instead.');
+    }
+    var rows = parseCsvRows(raw).filter(function (r) {
+      return r.some(function (cell) { return String(cell).trim() !== ''; });
+    });
+    if (rows.length === 0) {
+      throw new Error('The paste contains no data rows. Copy the whole sheet from “⧉ Copy VP Summary (CSV)”.');
+    }
+    var head = rows[0].map(vpNormLabel);
+    if (head[0] !== 'section' || head[1] !== 'metric' || head[2] !== 'value') {
+      throw new Error('First line must be the header “Section,Metric,Value,Unit”. Copy the whole sheet from “⧉ Copy VP Summary (CSV)”, including the header row.');
+    }
+    if (rows.length < 2) {
+      throw new Error('Header found but no data rows below it. Copy the whole sheet again.');
+    }
+    var NUM_RE = /^-?\d+(\.\d+)?$/;
+    function coerce(v) {
+      var s = String(v === null || v === undefined ? '' : v).trim();
+      if (s === '') return null;
+      return NUM_RE.test(s) ? parseFloat(s) : s;
+    }
+    var scalarMap = {};
+    VP_CSV_SPEC.forEach(function (s) { scalarMap[vpNormLabel(s[0]) + '|' + vpNormLabel(s[1])] = s[2]; });
+    var p = {};
+    function setPath(path, val) {
+      var parts = path.split('.');
+      var cur = p;
+      for (var x = 0; x < parts.length - 1; x++) cur = cur[parts[x]] = cur[parts[x]] || {};
+      cur[parts[parts.length - 1]] = val;
+    }
+    var seen = {};
+    var HAUL_CODES = {
+      'ultra long haul (ulh)': 'ULH', 'long haul (lh)': 'LH',
+      'medium haul (mh)': 'MH', 'short haul (sh)': 'SH'
+    };
+    for (var r = 1; r < rows.length; r++) {
+      var sec = vpNormLabel(rows[r][0]);
+      var met = vpNormLabel(rows[r][1]);
+      if (sec === '' && met === '') continue; // blank separator row
+      var val = coerce(rows[r].length > 2 ? rows[r][2] : '');
+      var key = sec + '|' + met;
+      var m;
+      if (Object.prototype.hasOwnProperty.call(scalarMap, key)) {
+        setPath(scalarMap[key], val);
+        seen[key] = true;
+        continue;
+      }
+      if (sec === 'top leverage routes' && (m = /^#(\d+) (route|weight-limit use|flights|criticality band)$/.exec(met))) {
+        p.leverage_routes = p.leverage_routes || [];
+        var ri = +m[1] - 1;
+        var rt = p.leverage_routes[ri] = p.leverage_routes[ri] || {};
+        if (m[2] === 'route') rt.pair = val === null ? null : String(val);
+        else if (m[2] === 'weight-limit use') rt.weight_util_pct = val;
+        else if (m[2] === 'flights') rt.flights = val;
+        else rt.band = val === null ? null : String(val).toUpperCase();
+        continue;
+      }
+      if (sec === 'top error categories' && (m = /^#(\d+) (category|records)$/.exec(met))) {
+        p.quality = p.quality || {};
+        var cats = p.quality.top_error_categories = p.quality.top_error_categories || [];
+        var ci = +m[1] - 1;
+        var ce = cats[ci] = cats[ci] || {};
+        if (m[2] === 'category') ce.category = val === null ? null : String(val);
+        else ce.count = val;
+        continue;
+      }
+      if (sec === 'haul mix') {
+        var code = HAUL_CODES[met] || ((m = /\(([a-z]+)\)$/.exec(met)) ? m[1].toUpperCase() : String(rows[r][1]).trim());
+        p.haul_mix = p.haul_mix || {};
+        p.haul_mix[code] = val;
+        continue;
+      }
+      // unknown row → ignored (forward-compatible)
+    }
+    // Friendly error naming the FIRST missing required metric
+    for (var s2 = 0; s2 < VP_CSV_SPEC.length; s2++) {
+      var spec = VP_CSV_SPEC[s2];
+      var k2 = vpNormLabel(spec[0]) + '|' + vpNormLabel(spec[1]);
+      if (!seen[k2]) {
+        throw new Error('The sheet is missing the “' + spec[0] + ' → ' + spec[1] + '” row. It may have been truncated while copying — copy the whole sheet from “⧉ Copy VP Summary (CSV)” again.');
+      }
+    }
+    return p;
+  }
+
+  /* ── validation ── */
+  function validatePayload(p) {
+    if (p === null || typeof p !== 'object' || Array.isArray(p)) {
+      return 'That parsed as JSON, but not as an object. Copy the whole block from “Copy VP Summary”, including the outer { }.';
+    }
+    if (p.schema !== EXPECTED_SCHEMA) {
+      return 'This does not look like an AutoPerf VP Summary (Meta → Schema is ' +
+        (p.schema ? '“' + String(p.schema).slice(0, 60) + '”' : 'missing') +
+        ', expected “' + EXPECTED_SCHEMA + '”). In AutoPerf 127, use the “⧉ Copy VP Summary (CSV)” button on the Overview tab.';
+    }
+    if (p.schema_version !== EXPECTED_VERSION) {
+      return 'Schema version mismatch: this deck renders v' + EXPECTED_VERSION +
+        ' payloads, but the export says v' + String(p.schema_version) +
+        '. Re-export from a matching AutoPerf build, or update this deck.';
+    }
+    var groups = ['period', 'volume', 'tankering', 'capacity', 'filing', 'quality'];
+    for (var i = 0; i < groups.length; i++) {
+      if (p[groups[i]] === null || typeof p[groups[i]] !== 'object') {
+        return 'The export is missing its “' + groups[i] + '” section. It may have been truncated while copying — copy the whole block again.';
+      }
+    }
+    if (!isNum(p.volume.records) || p.volume.records <= 0) {
+      return 'The export reports no calculation records (volume.records). Load CSV data in AutoPerf before exporting.';
+    }
+    return null; // valid
+  }
+
+  /* ── derived view-model ── */
+  function buildViewModel(p) {
+    var d = {};
+    var from = p.period && p.period.from, to = p.period && p.period.to;
+    d.period_label = (from && to) ? (from === to ? from : from + ' → ' + to) : 'period not stated';
+    d.days_label = (p.period && isNum(p.period.days)) ? (p.period.days + ' operating day' + (p.period.days === 1 ? '' : 's')) : '—';
+    d.generated_label = p.generated_at ? String(p.generated_at).slice(0, 16).replace('T', ' ') + 'Z' : '—';
+    var sync = /v\d{4}\.\d{2}\.\d{2}[a-z-]*/i.exec(p.generator || '');
+    d.sync_label = sync ? ('SYNC ' + sync[0]) : (p.generator ? String(p.generator).slice(0, 40) : '—');
+    var c = p.capacity || {};
+    if (isNum(c.day_shift_evals) && isNum(c.night_shift_evals)) {
+      var tot = c.day_shift_evals + c.night_shift_evals;
+      d.day_night_label = tot > 0
+        ? ('day ' + FMT.int(c.day_shift_evals) + ' (' + Math.round(c.day_shift_evals / tot * 100) + '%) · night ' +
+           FMT.int(c.night_shift_evals) + ' (' + Math.round(c.night_shift_evals / tot * 100) + '%)')
+        : '—';
+    } else { d.day_night_label = '—'; }
+    var hm = p.haul_mix || {};
+    var order = ['ULH', 'LH', 'MH', 'SH'];
+    var parts = [];
+    order.forEach(function (k) { if (isNum(hm[k]) && hm[k] > 0) parts.push(k + ' ' + FMT.int(hm[k])); });
+    Object.keys(hm).forEach(function (k) {
+      if (order.indexOf(k) === -1 && isNum(hm[k]) && hm[k] > 0) parts.push(k + ' ' + FMT.int(hm[k]));
+    });
+    d.haul_label = parts.length ? parts.join(' · ') : '—';
+    return { payload: p, derived: d };
+  }
+
+  /* ── render ── */
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function renderDeck(p) {
+    var vm = buildViewModel(p);
+    // fill all data-vp slots
+    var nodes = document.querySelectorAll('[data-vp]');
+    Array.prototype.forEach.call(nodes, function (el) {
+      var path = el.getAttribute('data-vp');
+      var val = (path.indexOf('derived.') === 0)
+        ? vm.derived[path.slice(8)]
+        : getPath(p, path);
+      var fmt = el.getAttribute('data-fmt') || 'raw';
+      el.textContent = (FMT[fmt] || FMT.raw)(val === undefined ? null : val);
+    });
+    // leverage-routes table
+    var lr = document.getElementById('leverageRows');
+    var routes = Array.isArray(p.leverage_routes) ? p.leverage_routes : [];
+    if (routes.length === 0) {
+      lr.innerHTML = '<tr><td class="dim" colspan="5">No leverage-route data in this export.</td></tr>';
+    } else {
+      lr.innerHTML = routes.map(function (r, i) {
+        var band = String(r.band || '—').toUpperCase();
+        var bandCls = /^(CRITICAL|HIGH|MODERATE|LOW)$/.test(band) ? 'band-' + band : '';
+        return '<tr>' +
+          '<td class="dim">' + (i + 1) + '</td>' +
+          '<td class="k">' + esc(r.pair || '—') + '</td>' +
+          '<td>' + FMT.int(r.flights) + '</td>' +
+          '<td class="v">' + FMT.pct(r.weight_util_pct) + '</td>' +
+          '<td><span class="band-pill ' + bandCls + '">' + esc(band) + '</span></td>' +
+          '</tr>';
+      }).join('');
+    }
+    // error-category rows (appended after the headline row)
+    var er = document.getElementById('errorRows');
+    // remove previously appended category rows (keep the first, template row)
+    while (er.rows.length > 1) er.deleteRow(1);
+    var cats = (p.quality && Array.isArray(p.quality.top_error_categories)) ? p.quality.top_error_categories : [];
+    cats.forEach(function (c) {
+      var tr = er.insertRow(-1);
+      var t1 = tr.insertCell(-1); t1.className = 'k'; t1.textContent = '· ' + (c.category || 'Unknown');
+      var t2 = tr.insertCell(-1); t2.className = 'v'; t2.textContent = FMT.int(c.count);
+      var t3 = tr.insertCell(-1); t3.className = 'dim';
+      t3.textContent = (isNum(c.count) && isNum(p.quality.error_records) && p.quality.error_records > 0)
+        ? Math.round(c.count / p.quality.error_records * 100) + '% of errors' : '';
+    });
+    if (cats.length === 0) {
+      var tr0 = er.insertRow(-1);
+      var c0 = tr0.insertCell(-1); c0.className = 'dim'; c0.colSpan = 3;
+      c0.textContent = 'No categorised errors in this export.';
+    }
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('deck').style.display = 'block';
+    window.scrollTo(0, 0);
+  }
+
+  /* ── gate wiring ── */
+  function showGateError(msg) {
+    document.getElementById('gateErrorMsg').textContent = msg;
+    document.getElementById('gateError').classList.add('show');
+  }
+  function clearGateError() {
+    document.getElementById('gateError').classList.remove('show');
+  }
+
+  document.getElementById('renderBtn').addEventListener('click', function () {
+    clearGateError();
+    var parsed;
+    try {
+      parsed = parseVpCsv(document.getElementById('pasteBox').value);
+    } catch (e) {
+      showGateError(e.message);
+      return;
+    }
+    var problem = validatePayload(parsed);
+    if (problem) { showGateError(problem); return; }
+    try {
+      renderDeck(parsed);
+    } catch (e) {
+      showGateError('The sheet validated but rendering failed: ' + e.message + '. Please re-export and try again.');
+    }
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', function () {
+    document.getElementById('deck').style.display = 'none';
+    document.getElementById('gate').style.display = 'flex';
+    document.getElementById('pasteBox').value = '';
+    clearGateError();
+    window.scrollTo(0, 0);
+  });
+
+  /* ── offline path: pre-embedded payload (CSV string, or object) ── */
+  if (window.__VP_PAYLOAD) {
+    var embedded = window.__VP_PAYLOAD;
+    try {
+      if (typeof embedded === 'string') embedded = parseVpCsv(embedded);
+      var problem = validatePayload(embedded);
+      if (problem === null) renderDeck(embedded);
+      else showGateError('Embedded payload rejected: ' + problem);
+    } catch (e) {
+      showGateError('Embedded payload failed: ' + e.message);
+    }
+  }
+})();
+</script>
+
+</body>
+</html>
