@@ -4,99 +4,1133 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>FPS Requirements — AutoPerf 127 Dossiers</title>
+<title>AutoPerf 127 — Dossier</title>
 <style>
   :root{
     --bg:#0a0e14; --surface:#0e131c; --surface-2:#131b28; --raise:#18212f;
     --border:#26303f; --border-soft:#1c2532;
     --text:#d9e1ec; --muted:#8492a8; --faint:#5d6b82;
-    --cyan:#37d1d7; --green:#37d99a; --gold:#e8b34a;
-    --shadow:0 1px 0 rgba(255,255,255,.02), 0 14px 34px -18px rgba(0,0,0,.85);
+    --cyan:#37d1d7; --green:#37d99a; --gold:#e8b34a; --amber:#ffb03d;
+    --red:#ff5b6e; --purple:#ab8cff; --pink:#f472b6;
+    --p1:#ff5b6e; --p2:#ffb03d; --p3:#37d1d7;
+    --shadow:0 1px 0 rgba(255,255,255,.02), 0 12px 32px -18px rgba(0,0,0,.8);
     --mono:ui-monospace,"Cascadia Code","JetBrains Mono",Menlo,Consolas,monospace;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    scroll-behavior:smooth;
   }
   @media (prefers-color-scheme: light){
-    :root{ --bg:#eef1f6;--surface:#fff;--surface-2:#f6f8fb;--raise:#eef2f7;--border:#d3dbe6;
-      --border-soft:#e2e8f0;--text:#182234;--muted:#54617a;--faint:#8894a8;
-      --cyan:#0f9ba1;--green:#12996a;--gold:#a9791a;
-      --shadow:0 1px 2px rgba(20,30,50,.05), 0 14px 32px -20px rgba(20,30,50,.25); }
+    :root{
+      --bg:#eef1f6; --surface:#ffffff; --surface-2:#f6f8fb; --raise:#eef2f7;
+      --border:#d3dbe6; --border-soft:#e2e8f0;
+      --text:#182234; --muted:#54617a; --faint:#8894a8;
+      --cyan:#0f9ba1; --green:#12996a; --gold:#a9791a; --amber:#b9761a;
+      --red:#d33044; --purple:#6b4fd0; --pink:#c1508e;
+      --p1:#d33044; --p2:#b9761a; --p3:#0f9ba1;
+      --shadow:0 1px 2px rgba(20,30,50,.05), 0 12px 30px -20px rgba(20,30,50,.25);
+    }
   }
-  :root[data-theme="dark"]{ --bg:#0a0e14;--surface:#0e131c;--surface-2:#131b28;--raise:#18212f;--border:#26303f;--border-soft:#1c2532;--text:#d9e1ec;--muted:#8492a8;--faint:#5d6b82;--cyan:#37d1d7;--green:#37d99a;--gold:#e8b34a; }
-  :root[data-theme="light"]{ --bg:#eef1f6;--surface:#fff;--surface-2:#f6f8fb;--raise:#eef2f7;--border:#d3dbe6;--border-soft:#e2e8f0;--text:#182234;--muted:#54617a;--faint:#8894a8;--cyan:#0f9ba1;--green:#12996a;--gold:#a9791a; }
+  :root[data-theme="dark"]{
+    --bg:#0a0e14; --surface:#0e131c; --surface-2:#131b28; --raise:#18212f;
+    --border:#26303f; --border-soft:#1c2532;
+    --text:#d9e1ec; --muted:#8492a8; --faint:#5d6b82;
+    --cyan:#37d1d7; --green:#37d99a; --gold:#e8b34a; --amber:#ffb03d;
+    --red:#ff5b6e; --purple:#ab8cff; --pink:#f472b6;
+    --p1:#ff5b6e; --p2:#ffb03d; --p3:#37d1d7;
+    --shadow:0 1px 0 rgba(255,255,255,.02), 0 12px 32px -18px rgba(0,0,0,.8);
+  }
+  :root[data-theme="light"]{
+    --bg:#eef1f6; --surface:#ffffff; --surface-2:#f6f8fb; --raise:#eef2f7;
+    --border:#d3dbe6; --border-soft:#e2e8f0;
+    --text:#182234; --muted:#54617a; --faint:#8894a8;
+    --cyan:#0f9ba1; --green:#12996a; --gold:#a9791a; --amber:#b9761a;
+    --red:#d33044; --purple:#6b4fd0; --pink:#c1508e;
+    --p1:#d33044; --p2:#b9761a; --p3:#0f9ba1;
+    --shadow:0 1px 2px rgba(20,30,50,.05), 0 12px 30px -20px rgba(20,30,50,.25);
+  }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased;font-size:15px}
-  .wrap{max-width:940px;margin:0 auto;padding:0 22px 80px}
-  a{text-decoration:none;color:inherit}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.55;
+    -webkit-font-smoothing:antialiased;font-size:15px}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 22px 90px}
+  a{color:var(--cyan);text-decoration:none}
+  a:hover{text-decoration:underline}
   ::selection{background:var(--cyan);color:var(--bg)}
+  [id]{scroll-margin-top:60px}
 
-  header{padding:56px 0 26px;border-bottom:1px solid var(--border);margin-bottom:30px}
+  /* ---------- sticky nav ---------- */
+  .nav{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border);
+    background:color-mix(in srgb,var(--bg) 86%,transparent);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  .nav .row{max-width:1100px;margin:0 auto;padding:0 22px;display:flex;gap:2px;overflow-x:auto}
+  .nav a{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted);
+    padding:13px 12px 11px;border-bottom:2px solid transparent;white-space:nowrap;
+    display:inline-flex;align-items:center;gap:8px}
+  .nav a:hover{color:var(--text);text-decoration:none;border-bottom-color:var(--acc,var(--border))}
+  .nav a .d{width:7px;height:7px;border-radius:2px;background:var(--acc,var(--cyan));flex:none}
+  .nav a.home{color:var(--text);font-weight:700;margin-right:6px}
+
+  /* ---------- header ---------- */
+  header.top{position:relative;padding:50px 0 30px;border-bottom:1px solid var(--border);margin-bottom:10px;overflow:hidden}
   .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);margin:0 0 14px}
-  h1{font-family:var(--mono);font-weight:700;font-size:clamp(28px,4.6vw,44px);line-height:1.05;margin:0 0 12px;letter-spacing:-.5px}
+  h1{font-family:var(--mono);font-weight:700;font-size:clamp(28px,4.6vw,44px);line-height:1.05;margin:0 0 10px;letter-spacing:-.5px;text-wrap:balance}
   h1 .dim{color:var(--faint)}
-  .lede{color:var(--muted);max-width:64ch;margin:0 0 20px;font-size:16px}
+  .lede{color:var(--muted);max-width:68ch;margin:0 0 22px;font-size:16px}
   .lede b{color:var(--text)}
   .chips{display:flex;flex-wrap:wrap;gap:8px}
   .chip{font-family:var(--mono);font-size:11.5px;padding:5px 10px;border:1px solid var(--border);border-radius:999px;color:var(--muted);background:var(--surface);white-space:nowrap}
-  .chip b{color:var(--text)}
+  .chip b{color:var(--text);font-weight:600}
+  .chip.ok{border-color:color-mix(in srgb,var(--green) 45%,transparent);color:var(--green)}
+  .chip.ok b{color:var(--green)}
 
-  .cards{display:grid;gap:16px}
-  .card{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;
-    background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px 24px;box-shadow:var(--shadow);
-    transition:border-color .15s, transform .15s}
-  .card:hover{border-color:var(--accent);transform:translateY(-2px)}
-  .card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-  .ico{font-size:34px;line-height:1;width:56px;height:56px;display:flex;align-items:center;justify-content:center;
-    background:var(--raise);border:1px solid var(--border);border-radius:12px}
-  .card h2{margin:0 0 4px;font-size:19px;letter-spacing:-.3px}
-  .card .num{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700}
-  .card p{margin:5px 0 0;color:var(--muted);font-size:13.5px;max-width:56ch}
-  .arw{font-family:var(--mono);color:var(--faint);font-size:22px;font-weight:700}
-  .card:hover .arw{color:var(--accent)}
-  .c-audit{--accent:var(--cyan)} .c-biz{--accent:var(--gold)} .c-req{--accent:var(--green)}
+  .verdict{margin-top:24px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;
+    background:linear-gradient(100deg,var(--surface),var(--surface-2));border:1px solid var(--border);
+    border-left:3px solid var(--green);border-radius:12px;padding:16px 20px;box-shadow:var(--shadow)}
+  .gauge{font-family:var(--mono);font-weight:700;font-size:40px;line-height:1;color:var(--green);text-align:center;min-width:96px}
+  .gauge small{display:block;font-size:10.5px;letter-spacing:.12em;color:var(--muted);font-weight:500;margin-top:6px;text-transform:uppercase}
+  .verdict p{margin:0;font-size:14.5px}
+  .verdict b{color:var(--text)}
+  @media(max-width:720px){.verdict{grid-template-columns:1fr}}
 
-  @media(max-width:600px){.card{grid-template-columns:auto 1fr;padding:18px 18px}.arw{display:none}}
+  /* ---------- section dividers ---------- */
+  .secdiv{margin:72px 0 4px;padding-top:30px;border-top:2px solid var(--border)}
+  .secdiv .kick{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--acc,var(--cyan));display:flex;align-items:center;gap:10px;margin:0 0 10px}
+  .secdiv .kick::before{content:"";width:9px;height:9px;border-radius:2px;background:var(--acc,var(--cyan));box-shadow:0 0 12px var(--acc,var(--cyan))}
+  .secdiv .t{font-family:var(--mono);font-weight:700;font-size:clamp(21px,3.2vw,30px);letter-spacing:-.4px;margin:0 0 8px;text-wrap:balance}
+  .secdiv .t .dim{color:var(--faint)}
+  .secdiv .sub{color:var(--muted);font-size:14.5px;max-width:72ch;margin:0 0 16px}
+  .secdiv .sub b{color:var(--text)}
 
-  footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--border);color:var(--faint);font-size:12px;font-family:var(--mono);display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
+  /* ---------- subsection headers ---------- */
+  section{margin:40px 0}
+  h2{font-family:var(--mono);font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+    margin:0 0 4px;display:flex;align-items:center;gap:10px}
+  h2::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--accent,var(--cyan));box-shadow:0 0 10px var(--accent,var(--cyan))}
+  h2.a-gold{--accent:var(--gold)}
+  h2.a-green{--accent:var(--green)}
+  h2.a-data{--accent:var(--cyan)} h2.a-tbl{--accent:var(--green)} h2.a-anl{--accent:var(--amber)}
+  h2.a-srch{--accent:var(--purple)} h2.a-cfg{--accent:var(--pink)}
+  .h2sub{color:var(--faint);font-size:13px;margin:0 0 20px;font-family:var(--sans)}
+  h3{font-size:16px;margin:0 0 8px;letter-spacing:-.2px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 22px;box-shadow:var(--shadow)}
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:720px){.g2,.g3{grid-template-columns:1fr}}
+  code,.il{font-family:var(--mono);font-size:12px;background:var(--raise);padding:1px 5px;border-radius:4px;color:var(--text)}
+
+  /* ---------- pipeline / flow ---------- */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;font-family:var(--mono);font-size:12.5px}
+  .flow .stage{flex:1;min-width:120px;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:11px 12px}
+  .flow .stage .k{color:var(--cyan);font-weight:600;display:block;margin-bottom:3px}
+  .flow .stage .v{color:var(--muted);font-size:11px}
+  .flow .arw{align-self:center;color:var(--faint);font-size:16px}
+  .flow.f-green .stage .k{color:var(--green)}
+  @media(max-width:720px){.flow .arw{transform:rotate(90deg)}}
+
+  /* ---------- data model cards ---------- */
+  .dm{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:720px){.dm{grid-template-columns:1fr}}
+  .dm .col{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px}
+  .dm .col .cols{font-family:var(--mono);font-size:11.5px;color:var(--purple);display:block;margin-bottom:4px;letter-spacing:.02em}
+  .dm .col .use{font-size:13px;color:var(--muted)}
+  .pill{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+    padding:2px 7px;border-radius:5px;vertical-align:middle}
+  .pill.new{background:color-mix(in srgb,var(--green) 16%,transparent);color:var(--green);border:1px solid color-mix(in srgb,var(--green) 34%,transparent)}
+
+  /* ---------- risk / strength cards ---------- */
+  .risk{border-left:3px solid var(--red);position:relative}
+  .risk .num{font-family:var(--mono);font-size:12px;color:var(--red);font-weight:700;letter-spacing:.1em}
+  .risk p{margin:8px 0 0;font-size:14px;color:var(--muted)}
+  .risk p b{color:var(--text)}
+  .strength{border-left:3px solid var(--green)}
+  .strength .num{color:var(--green)}
+
+  /* ---------- tables ---------- */
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  .scroll{overflow-x:auto;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow)}
+  table.x{min-width:640px}
+  table.x th,table.x td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--border-soft);vertical-align:top}
+  table.x thead th{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--surface-2)}
+  table.x tbody tr:last-child td{border-bottom:none}
+  table.x td.lens{font-family:var(--mono);font-size:12px;color:var(--text);white-space:nowrap;font-weight:600}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+  .d-view{background:var(--amber)} .d-pbi{background:var(--purple)} .d-kb{background:var(--cyan)}
+
+  /* ---------- roadmap lanes ---------- */
+  .lane{margin-bottom:26px}
+  .lane-h{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+  .lane-h .ptag{font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.08em;padding:4px 10px;border-radius:6px}
+  .ptag.p1{background:color-mix(in srgb,var(--p1) 15%,transparent);color:var(--p1);border:1px solid color-mix(in srgb,var(--p1) 38%,transparent)}
+  .ptag.p2{background:color-mix(in srgb,var(--p2) 15%,transparent);color:var(--p2);border:1px solid color-mix(in srgb,var(--p2) 38%,transparent)}
+  .ptag.p3{background:color-mix(in srgb,var(--p3) 15%,transparent);color:var(--p3);border:1px solid color-mix(in srgb,var(--p3) 38%,transparent)}
+  .lane-h .lbl-lane{font-size:14px;color:var(--muted)}
+  .lane-h .done{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--green);white-space:nowrap}
+  table.r{min-width:660px}
+  table.r th,table.r td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--border-soft);vertical-align:top}
+  table.r thead th{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);background:var(--surface-2)}
+  table.r td.id{font-family:var(--mono);font-weight:700;color:var(--text);white-space:nowrap}
+  table.r td.ln{font-family:var(--mono);font-size:11.5px;color:var(--faint);white-space:nowrap}
+  table.r td .why{color:var(--muted);font-size:12.5px;display:block;margin-top:3px}
+  table.r tbody tr:hover{background:var(--surface-2)}
+  .eff{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
+  .flag{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;padding:1px 6px;border-radius:4px;text-transform:uppercase;white-space:nowrap;display:inline-block;margin-top:5px}
+  .flag.pbi{background:color-mix(in srgb,var(--purple) 15%,transparent);color:var(--purple)}
+  .flag.kb{background:color-mix(in srgb,var(--cyan) 15%,transparent);color:var(--cyan)}
+
+  ul.tight{margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:13.5px}
+  ul.tight li{margin:5px 0}
+  ul.tight b{color:var(--text)}
+  .order{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;box-shadow:var(--shadow);font-size:14px}
+  .order .seq{font-family:var(--mono);color:var(--text);font-size:13.5px;line-height:2}
+  .order .seq .a{color:var(--red)} .order .seq .b{color:var(--amber)} .order .seq .c{color:var(--cyan)}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;font-family:var(--mono);font-size:11.5px;color:var(--muted);margin:4px 0 18px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+
+  /* ---------- business: money cards ---------- */
+  .hero{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  @media(max-width:800px){.hero{grid-template-columns:1fr}}
+  .money{background:linear-gradient(160deg,var(--surface),var(--surface-2));border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:12px;padding:18px 18px 20px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+  .money .rank{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase}
+  .money h3{font-size:17px;margin:8px 0 4px;letter-spacing:-.2px}
+  .money .big{font-family:var(--mono);font-weight:700;font-size:26px;color:var(--green);margin:10px 0 2px;line-height:1}
+  .money .big small{display:block;font-size:10.5px;color:var(--muted);letter-spacing:.06em;font-weight:500;margin-top:5px;text-transform:uppercase}
+  .money p{margin:10px 0 0;font-size:13px;color:var(--muted)}
+  .money p b{color:var(--text)}
+  .money .foot{margin-top:auto;padding-top:12px;font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+
+  /* ---------- business: register table ---------- */
+  table.bz{min-width:660px}
+  table.bz th,table.bz td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--border-soft);vertical-align:top}
+  table.bz thead th{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);background:var(--surface-2)}
+  table.bz tbody tr:last-child td{border-bottom:none}
+  table.bz tbody tr:hover{background:var(--surface-2)}
+  table.bz td.p{font-family:var(--mono);font-weight:700;color:var(--gold);white-space:nowrap}
+  table.bz td .opp{color:var(--text);font-weight:600}
+  table.bz td .ev{color:var(--muted);font-size:12.5px;display:block;margin-top:3px}
+  .lever{font-family:var(--mono);font-size:10px;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:5px;white-space:nowrap;display:inline-block}
+  .l-fuel{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green)}
+  .l-time{background:color-mix(in srgb,var(--cyan) 15%,transparent);color:var(--cyan)}
+  .l-risk{background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red)}
+  .l-cap{background:color-mix(in srgb,var(--purple) 15%,transparent);color:var(--purple)}
+  .l-pol{background:color-mix(in srgb,var(--gold) 15%,transparent);color:var(--gold)}
+  .tag-new{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;padding:1px 6px;border-radius:4px;text-transform:uppercase;white-space:nowrap;background:color-mix(in srgb,var(--gold) 16%,transparent);color:var(--gold)}
+  .tag-ext{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;padding:1px 6px;border-radius:4px;text-transform:uppercase;white-space:nowrap;background:var(--raise);color:var(--muted)}
+
+  /* ---------- business: data quality + sequencing ---------- */
+  .dq{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:720px){.dq{grid-template-columns:1fr}}
+  .dq .item{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:10px;padding:14px 16px}
+  .dq .item h4{margin:0 0 5px;font-size:14px;font-family:var(--mono)}
+  .dq .item p{margin:0;color:var(--muted);font-size:13px}
+  .seqbox{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;box-shadow:var(--shadow);font-size:14px;color:var(--muted)}
+  .seqbox b{color:var(--text)}
+  .seqbox ol{margin:6px 0 0;padding-left:20px}
+  .seqbox li{margin:7px 0}
+  .seqbox .g{color:var(--gold);font-family:var(--mono);font-weight:600}
+
+  /* ---------- backlog: requirement cards ---------- */
+  .req{background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden}
+  .req-head{display:flex;align-items:flex-start;gap:13px;padding:15px 18px 12px}
+  .rnum{font-family:var(--mono);font-weight:700;font-size:13px;min-width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:7px;background:var(--raise);color:var(--accent,var(--cyan));border:1px solid var(--border)}
+  .req.a-data .rnum{--accent:var(--cyan)} .req.a-tbl .rnum{--accent:var(--green)} .req.a-anl .rnum{--accent:var(--amber)}
+  .req.a-srch .rnum{--accent:var(--purple)} .req.a-cfg .rnum{--accent:var(--pink)}
+  .req-title{flex:1;min-width:0}
+  .req-title h3{margin:0 0 3px;font-size:16px;letter-spacing:-.2px}
+  .req-title p{margin:0;color:var(--muted);font-size:13.5px}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:5px;white-space:nowrap}
+  .t-new{background:color-mix(in srgb,var(--cyan) 16%,transparent);color:var(--cyan)}
+  .t-refine{background:color-mix(in srgb,var(--amber) 16%,transparent);color:var(--amber)}
+  .t-fix{background:color-mix(in srgb,var(--red) 16%,transparent);color:var(--red)}
+  .t-global{background:color-mix(in srgb,var(--green) 16%,transparent);color:var(--green)}
+  .t-meta{background:color-mix(in srgb,var(--faint) 20%,transparent);color:var(--muted)}
+  .t-done{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green);border:1px solid color-mix(in srgb,var(--green) 36%,transparent);font-weight:700}
+
+  .shape{border-top:1px solid var(--border-soft);display:grid;grid-template-columns:1fr 1fr;gap:0}
+  @media(max-width:720px){.shape{grid-template-columns:1fr}}
+  .shape .col{padding:12px 18px 14px;min-width:0}
+  .shape .col.now{border-right:1px solid var(--border-soft)}
+  @media(max-width:720px){.shape .col.now{border-right:none;border-bottom:1px solid var(--border-soft)}}
+  .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 7px;display:flex;align-items:center;gap:6px}
+  .lbl.now{color:var(--faint)} .lbl.now::before{content:"●";color:var(--faint)}
+  .lbl.done{color:var(--green)} .lbl.done::before{content:"✓";color:var(--green);font-weight:700}
+  pre{margin:0;font-family:var(--mono);font-size:11.5px;line-height:1.5;color:var(--text);background:var(--bg);border:1px solid var(--border-soft);border-radius:7px;padding:9px 11px;overflow-x:auto;white-space:pre}
+  pre .c{color:var(--faint)} pre .k{color:var(--pink)} pre .s{color:var(--green)} pre .n{color:var(--cyan)}
+  .prose{color:var(--muted);font-size:13px;margin:8px 0 0}
+  .prose b{color:var(--text)}
+  .ref{font-family:var(--mono);font-size:10px;color:var(--faint);margin-top:7px}
+
+  .note{background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:10px;padding:13px 16px;margin:18px 0;font-size:13.5px;color:var(--muted)}
+  .note b{color:var(--text)}
+  .note ul{margin:8px 0 0;padding-left:20px}
+  .note li{margin:3px 0}
+
+  footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--border);color:var(--faint);font-size:12px;font-family:var(--mono);display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <p class="eyebrow">Flight-Planning Systems · Private</p>
-    <h1>FPS Requirements <span class="dim">— AutoPerf&nbsp;127 Dossiers</span></h1>
-    <p class="lede">Three companion analyses of the <b>AutoPerf 127</b> flight-planning-performance console (P1+P2+P3 build). Code logic &amp; requirements only — no flight data. Private.</p>
-    <div class="chips">
-      <span class="chip"><b>3</b> dossiers</span>
-      <span class="chip">build <b>· P1+P2+P3</b></span>
-      <span class="chip">updated <b>2026-07-09</b></span>
-    </div>
-  </header>
 
-  <div class="cards">
-    <a class="card c-audit" href="audit.html">
-      <div class="ico">🛫</div>
-      <div><span class="num">01 · System Audit</span><h2>Audit &amp; High-Level Conclusions</h2>
-        <p>What the system is, the 93→127 data model, architecture &amp; data flow, and the P1/P2/P3 remediation roadmap — cross-checked against the Power BI model and Lessons-Learned KB.</p></div>
+<nav class="nav"><div class="row">
+  <a class="home" href="#top">AutoPerf&nbsp;127</a>
+  <a href="#audit" style="--acc:var(--cyan)"><span class="d"></span>01&nbsp;Audit</a>
+  <a href="#business" style="--acc:var(--gold)"><span class="d"></span>02&nbsp;Business&nbsp;·&nbsp;10</a>
+  <a href="#backlog" style="--acc:var(--green)"><span class="d"></span>03&nbsp;Backlog&nbsp;·&nbsp;15&nbsp;shipped</a>
+</div></nav>
+
+<div class="wrap" id="top">
+
+<header class="top">
+  <p class="eyebrow">Flight-Planning Systems · Consolidated Dossier · 2026-07-10</p>
+  <h1>AutoPerf&nbsp;127 <span class="dim">— Dossier</span></h1>
+  <p class="lede">One consolidated record for the <b>AutoPerf 127</b> flight-planning-performance console: the system audit &amp; remediation history, the business improvement register, and the fifteen-point improvement backlog — <b>now fully shipped</b>. Code logic &amp; requirements only — <b>no flight data · private</b>.</p>
+  <div class="chips">
+    <span class="chip"><b>01</b> Audit — P1+P2+P3 remediation</span>
+    <span class="chip"><b>02</b> Business — <b>10</b> opportunities</span>
+    <span class="chip"><b>03</b> Backlog — <b>15 shipped</b></span>
+    <span class="chip ok"><b>✓ P1+P2+P3</b> · 2026-07-07</span>
+    <span class="chip ok"><b>✓ Backlog Build v1</b> · 15/15</span>
+    <span class="chip"><b>127-col</b> schema (was 93)</span>
+  </div>
+  <div class="verdict">
+    <div class="gauge">✓<small>all shipped</small></div>
+    <p><b>Everything engineered so far is in the build.</b> The audit's <b>P1</b> (12 correctness bugs) + <b>P2</b> (6 latent-value analytics) + <b>P3</b> (CDNs vendored, XSS-escaped) passes were promoted 2026-07-07 to <code>autoperf_viewer_127.html</code>. The full <b>15-point backlog</b> then shipped as <b>"Backlog Build v1"</b> (<code>autoperf_viewer_127_backlog.html</code>, 2,209,281&nbsp;B) — backlog harness 59/59, 0 console errors on the 7,140-row dataset — including the <b>Dispatcher Efficiency staffing model</b> and the <b>LSY external-support</b> user rule. The Business Register's <b>10 opportunities</b> remain the open action list for the operation itself.</p>
+  </div>
+</header>
+
+<!-- ================================================================ -->
+<!-- 01 · SYSTEM AUDIT                                                -->
+<!-- ================================================================ -->
+<div class="secdiv" id="audit" style="--acc:var(--cyan)">
+  <p class="kick">01 · System Audit</p>
+  <p class="t">Audit <span class="dim">&amp; High-Level Conclusions</span></p>
+  <p class="sub">A performance-forensics console that reconstructs every flight-plan calculation from AOS automation through human dispatch to ATC filing. Reviewed line-by-line, then cross-checked against the canonical Power&nbsp;BI model and the workspace Lessons-Learned KB.</p>
+  <div class="chips">
+    <span class="chip ok"><b>✓ P1+P2+P3 shipped</b> · 2026-07-07</span>
+    <span class="chip"><b>14,931</b> lines · single file</span>
+    <span class="chip"><b>127-col</b> schema (was 93)</span>
+    <span class="chip"><b>15</b> analytical tabs <span style="color:var(--faint)">(+ Route Structure in Backlog Build v1)</span></span>
+    <span class="chip"><b>~249</b> functions</span>
+    <span class="chip">deps: <b>Chart.js · xlsx</b> — vendored inline (P3)</span>
+  </div>
+  <div class="verdict" style="margin-top:18px">
+    <div class="gauge">✓<small>shipped &amp; verified</small></div>
+    <p><b>All three passes shipped &amp; promoted (2026-07-07)</b> to the canonical build. <b>P1</b> — 12 correctness bugs fixed (Time Impact, LIDO %, header-guard, multi-day key…). <b>P2</b> — 6 latent-value analytics added (alternate-quality, hold-attribution, CO₂, offload, wind, configurable ANC). <b>P3</b> — Chart.js + xlsx vendored inline (offline-safe), fonts de-CDN'd, untrusted fields escaped. Verified live (0 console errors) + <b>26 / 23 / 22</b> assertions green; pre-fix original preserved as a dated reference.</p>
+  </div>
+</div>
+
+<!-- WHAT IT IS -->
+<section>
+  <h2>What the system is</h2>
+  <p class="h2sub">One CSV row = one OFP/CFP computation. Grouped per flight, it answers the questions a Flight Planning Systems Manager owns.</p>
+  <div class="card">
+    <div class="flow">
+      <div class="stage"><span class="k">AOS</span><span class="v">USER=lido · automated FIRST/ZFW/ACFT/FINAL triggers</span></div>
       <div class="arw">→</div>
-    </a>
-    <a class="card c-biz" href="business.html">
-      <div class="ico">📈</div>
-      <div><span class="num">02 · Business Register</span><h2>Business Improvement Register</h2>
-        <p>Ten prioritized opportunities mined from the Glossary — missed/capped tankering, AOS compute-queue, the file-then-optimize gate, NORULE coverage, filing-quality — each with columns &amp; sizing.</p></div>
+      <div class="stage"><span class="k">HUMAN</span><span class="v">TYPE=IFPL · qrXXXXX at offices D01–D13 / M01–M09</span></div>
       <div class="arw">→</div>
-    </a>
-    <a class="card c-req" href="backlog.html">
-      <div class="ico">🛠️</div>
-      <div><span class="num">03 · Improvement Requirements</span><h2>Improvement Backlog</h2>
-        <p>Fifteen enhancement points as <b>current-shape → proposed-change</b>, each grounded in verified code/line-refs from the build. Batched — more points to come.</p></div>
+      <div class="stage"><span class="k">VALIDATE</span><span class="v">IFPUV · Eurocontrol ACK / REJ</span></div>
       <div class="arw">→</div>
-    </a>
+      <div class="stage"><span class="k">FILE</span><span class="v">LAST_FILED · ATS_HISTORY actions</span></div>
+      <div class="arw">→</div>
+      <div class="stage"><span class="k">BRIEF</span><span class="v">LAST_SENT to crew</span></div>
+    </div>
+    <p style="margin:16px 0 0;color:var(--muted);font-size:13.5px">It decides real things: <b style="color:var(--text)">is the AOS automation trustworthy</b>, do dispatchers add value or burn fuel when they override it, <b style="color:var(--text)">what fraction of filed routes the LIDO engine actually authored</b> (one <code>lidoContributionData</code> shared across 5 tabs), how many dispatchers are needed per hour, and which city pairs are payload-/weight-constrained and expensive. Nearly every table ranks, scores, or classifies.</p>
+  </div>
+</section>
+
+<!-- DATA MODEL -->
+<section>
+  <h2>The data model — why "127" matters</h2>
+  <p class="h2sub">The 26 columns added over the old 93-col schema aren't cosmetic — and the good news: they're <b>mostly exploited, not latent</b>.</p>
+  <div class="dm">
+    <div class="col"><span class="cols">MALTOW · MALLW · MALZFW · TAKE_OFF/LANDING_WEIGHT <span class="pill new">new</span></span><span class="use">Weight-limit proximity → <b style="color:var(--text)">payload-limited-flight detection</b> — the backbone of the Payload Criticality tab.</span></div>
+    <div class="col"><span class="cols">ATC_HOLD_TIME · WX_HOLD_TIME <span class="pill new">new</span></span><span class="use">Delay attribution — ATC vs weather hold fuel (per destination + STA band since Backlog #13).</span></div>
+    <div class="col"><span class="cols">OFFLOAD · OFFLOAD_REASON · CO2_COST <span class="pill new">new</span></span><span class="use">Offload economics + environmental cost per plan/route.</span></div>
+    <div class="col"><span class="cols">ALTN_TIME/FUEL/FL · 1–4 <span class="pill new">new</span></span><span class="use">Alternate-selection quality — fuel penalty of each alternate slot.</span></div>
+    <div class="col"><span class="cols">CONT_POLICY · VOLAR · SCENARIO <span class="pill new">new</span></span><span class="use">Contingency-policy usage audit; live plans vs what-if runs.</span></div>
+    <div class="col"><span class="cols">AIR_DISTANCE · CLIMB/DESCENT_PROCEDURE · SKYVECTOR <span class="pill new">new</span></span><span class="use">Wind-efficiency (air vs ground dist) — shipped in P2; profile provenance; one-click route viz.</span></div>
+  </div>
+</section>
+
+<!-- HIGH-LEVEL CONCLUSIONS -->
+<section>
+  <h2>High-level conclusions</h2>
+  <p class="h2sub">The headline read at audit time: strong instrument, three structural risks (since remediated), one cross-system truth.</p>
+
+  <div class="grid g3" style="margin-bottom:16px">
+    <div class="card risk">
+      <span class="num">RISK 01</span>
+      <h3>Silent wrong numbers</h3>
+      <p>The monolith grew until <b>later code overwrites earlier code</b>: <code>parseTimeToMinutes</code> was redefined 4,600 lines apart with an incompatible format, so Route Analysis <b>"Time Impact" read 0 for every flight</b>. No test harness, no schema check, no assertion layer to catch it. <b style="color:var(--green)">Fixed in P1</b>; harnesses now guard it.</p>
+    </div>
+    <div class="card risk">
+      <span class="num">RISK 02</span>
+      <h3>Multi-day identity confusion</h3>
+      <p>Core key is <code>CALLSIGN_DATE_STD</code>, but three analyses fell back to <b>bare CALLSIGN</b> — correct for one day, silently wrong once weekly files are merged (which the Workforce tab explicitly encourages). QR001 across 7 days collapsed into one flight. <b style="color:var(--green)">Fixed in P1 #7</b> (composite <code>flightKey</code>).</p>
+    </div>
+    <div class="card risk">
+      <span class="num">RISK 03</span>
+      <h3>Environment coupling &amp; trust</h3>
+      <p>Chart.js / xlsx / Google-Fonts <b>CDNs reintroduced online dependency</b> the 93-col build avoided — Payload charts died offline on a corporate PC. Everything renders via <code>innerHTML</code> with unescaped log fields. <b style="color:var(--green)">Fixed in P3</b> — deps vendored inline, <code>esc()</code> at template boundaries.</p>
+    </div>
   </div>
 
-  <footer>
-    <span>FPS Requirements · AutoPerf 127 · private</span>
-    <span>code logic only — no data</span>
-  </footer>
+  <div class="card strength">
+    <span class="num">STRENGTH</span>
+    <h3>Where its analytical leverage is real</h3>
+    <p>The center of gravity — the <b>adopted / same-name / ≥90%-similar / truly-modified</b> decomposition feeding one shared <code>lidoContributionData</code> across five tabs — is the right abstraction. The <b>"fair comparison" ZFW-gating</b> refuses to blame dispatchers for fuel deltas caused by load changes; the dispatcher-intent taxonomy, multi-file smart-merge with workflow fingerprints, the weekly workforce view, and the glossary-as-documentation are all above the bar for a single-file internal tool.</p>
+  </div>
+</section>
+
+<!-- DISPATCHER EFFICIENCY MODEL (shipped) -->
+<section>
+  <h2 class="a-green">Dispatcher efficiency — the shipped staffing model</h2>
+  <p class="h2sub">The headline workforce feature: "how many dispatchers does this operation need per shift" — computed from the log, not guessed.</p>
+  <div class="card" style="border-left:3px solid var(--green)">
+    <div class="flow f-green" style="margin-bottom:16px">
+      <div class="stage"><span class="k">PROCESSING</span><span class="v">wall-clock UNION of [CALC_TIME, CALC_TIME+ELAPSED_TIME] per dispatcher</span></div>
+      <div class="arw">→</div>
+      <div class="stage"><span class="k">WINDOW</span><span class="v">12 h × active LOCAL-time roster blocks · Doha UTC+3</span></div>
+      <div class="arw">→</div>
+      <div class="stage"><span class="k">IDLE</span><span class="v">window − processing → per-shift staffing signal</span></div>
+    </div>
+    <ul class="tight">
+      <li><b>Processing = interval union, not Σ&nbsp;ELAPSED.</b> Each dispatcher's <code>[CALC_TIME, CALC_TIME&nbsp;+&nbsp;ELAPSED_TIME]</code> intervals are merged on the wall clock, so parallel SUFFIX/route calculations count once. A plain Σ&nbsp;ELAPSED over-counts by <b>~26.5%</b> on the reference dataset.</li>
+      <li><b>Working window = local-time roster blocks.</b> 12&nbsp;h per active block, Doha local (UTC+3): day <b>06:00–18:00</b>, night <b>18:00–06:00</b>. The night shift is <b>one block across midnight</b> — never split per calendar day.</li>
+      <li><b>ATS actions folded in.</b> ATS_HISTORY filing/send actions enter as point events, surfaced in a dedicated <b>"ATS Actions"</b> column alongside the calc workload.</li>
+      <li><b>Idle = window − processing</b>, reported per dispatcher per shift.</li>
+    </ul>
+    <p style="margin:14px 0 0;color:var(--muted);font-size:13px"><b style="color:var(--amber)">Honest caveat:</b> processing measures <b>machine calc time only</b> — briefing, coordination, phone calls and monitoring are invisible to the log. Idle% is therefore an <b>optimizer-utilization indicator</b>, not a measure of dispatcher busyness.</p>
+  </div>
+</section>
+
+<!-- CROSS CHECK -->
+<section>
+  <h2>Three-lens cross-check</h2>
+  <p class="h2sub">The unique finding of this review: the viewer <b>re-implements in JS what the Power BI ETL+DAX already do canonically</b> — so they can drift. The canonical model already solved two of the viewer's risks.</p>
+  <div class="legend">
+    <span><span class="dot d-view"></span>Viewer (127.html)</span>
+    <span><span class="dot d-pbi"></span>Power BI model (canonical)</span>
+    <span><span class="dot d-kb"></span>Lessons-Learned KB</span>
+  </div>
+  <div class="scroll">
+  <table class="x">
+    <thead><tr><th>Dimension</th><th><span class="dot d-view"></span>Viewer at audit</th><th><span class="dot d-pbi"></span>Power BI canonical</th><th><span class="dot d-kb"></span>KB says</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="lens">Unique flight key</td>
+        <td><code>CALLSIGN_DATE_STD</code> — coarse; collided across days (fixed P1 #7)</td>
+        <td><b>UNQ_AUTPER + USER + SUFFIX + CALC_REQUEST_TIME</b>; <code>Total_Flights = DISTINCTCOUNT(UNQ_AUTPER)</code></td>
+        <td>dedup key = CALLSIGN+DATE+STD (documented, coarse)</td>
+      </tr>
+      <tr>
+        <td class="lens">Timing data quality</td>
+        <td>No guard — averages included negatives &amp; unverified decomposition</td>
+        <td><b>Pct_Negative_Min_Elap</b> (negatives exist!) + <b>Timing_Identity_Check</b> (ELAPSED = ROUTOPT+VERTOPT, should=100%)</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td class="lens">AOS vs Human</td>
+        <td>USER=lido → AOS (matches)</td>
+        <td>Same; <code>Human_Intervention_Rate = DIVIDE(Mixed,AOS)</code> ✓ aligned</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td class="lens">Charts</td>
+        <td>Inline SVG + 2 Chart.js canvases (CDN at audit; <b>vendored inline in P3</b>)</td>
+        <td>n/a (visuals live in Power BI report)</td>
+        <td><b>"SVG Charts &gt; Chart.js/D3"</b> — build SVG programmatically; other apps use "None (SVG)"</td>
+      </tr>
+      <tr>
+        <td class="lens">Data-in-HTML</td>
+        <td>Parsed CSV held in memory; 953 KB monolith</td>
+        <td>CSV → Python/M ETL → parquet → thin model</td>
+        <td><b>P1 (deferred):</b> extract data → <code>autoperf_data.json</code>, 931→~200 KB</td>
+      </tr>
+      <tr>
+        <td class="lens">Theme / usability</td>
+        <td>Dark only, 15 tabs, no tab search</td>
+        <td>n/a</td>
+        <td><b>P3:</b> light-mode toggle + tab search across sections</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <p style="margin:16px 2px 0;color:var(--muted);font-size:13.5px">→ <b style="color:var(--text)">Adopt the Power BI model as the source of truth.</b> Port <code>UNQ_AUTPER</code> and the two data-quality checks into the viewer, and the viewer stops drifting from the numbers Axel already trusts in Power BI.</p>
+</section>
+
+<!-- ROADMAP -->
+<section>
+  <h2>Remediation roadmap — as executed</h2>
+  <p class="h2sub">P1 changed a number someone could act on — done first. <span class="flag pbi">PBI</span> = validated by the Power BI model · <span class="flag kb">KB</span> = already on the Lessons-Learned plan.</p>
+
+  <!-- P1 -->
+  <div class="lane">
+    <div class="lane-h"><span class="ptag p1">P1</span><span class="lbl-lane">Data fidelity — wrong numbers on screen</span><span class="done">✓ 12 fixed &amp; verified</span></div>
+    <div class="scroll">
+    <table class="r">
+      <thead><tr><th>#</th><th>Bug &amp; trigger</th><th>Loc.</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td class="id">1</td><td><b>Time Impact always 0.</b> <code>parseTimeToMinutes</code> redefined; 2nd (HH:MM:SS-only) won, so <code>TRIP_TIME="06:38"</code>→null → every Route Analysis time delta = 0.<span class="why">Headline metric; also broke the modified-table time sort.</span></td><td class="ln">7694 / 12275</td><td class="eff">~15m</td></tr>
+        <tr><td class="id">3</td><td><b>No header validation → silent column misalignment.</b> Loaded a 93-col CSV "fine"; every field past AIRLINE shifted, all tabs garbage.<span class="why">Highest safety payoff. Map by name / verify header.</span></td><td class="ln">4807</td><td class="eff">~1h</td></tr>
+        <tr><td class="id">11</td><td><b>LIDO % biased downward.</b> <code>extractWaypoints</code> kept <code>DAVUS/N0485F320</code> whole → identical routes with step-climbs scored as different → misclassified below 90%.<span class="why">Deflated the flagship metric. Strip <code>/.*$</code> per token.</span></td><td class="ln">7761</td><td class="eff">~15m</td></tr>
+        <tr><td class="id">7</td><td><b>Multi-day identity collisions.</b> Change-Mgmt selected by CALLSIGN <i>substring</i> across the whole set; LIDO/IFPL keyed by bare callsign → cross-day contamination.<span class="why">Keyed by flightKey. <span class="flag pbi">PBI</span> canonical key = UNQ_AUTPER+USER+SUFFIX+CALC_REQUEST_TIME.</span></td><td class="ln">11199 · 6979</td><td class="eff">~1–2h</td></tr>
+        <tr><td class="id">2</td><td><b>STD markers never rendered</b> (Timeline &amp; Gantt) — STD has no seconds, regex demanded HH:MM:SS.<span class="why">Seconds made optional.</span></td><td class="ln">12275 · 11838</td><td class="eff">~10m</td></tr>
+        <tr><td class="id">4</td><td><b>Day-of-week TZ skew.</b> Parsed STD as local, called <code>getUTCDay()</code> → on UTC+3 Doha PC, pre-03:00 flights shifted a day → wrong "Busiest Day".</td><td class="ln">5029</td><td class="eff">~10m</td></tr>
+        <tr><td class="id">5</td><td><b>Economic_Score degenerate.</b> <code>payload/500</code> tuned for old LOAD~475; with 127-col LOAD~50,000 the weight always saturated to 1.</td><td class="ln">5111</td><td class="eff">~15m</td></tr>
+        <tr><td class="id">6</td><td><b>Cancelled / MAN actions dropped.</b> <code>parseAtsHistory</code> regex ignored them though the app's own glossary lists 31 Cancelled — they vanished from counts &amp; anomaly logic.</td><td class="ln">8006</td><td class="eff">~10m</td></tr>
+        <tr><td class="id">8·9·10</td><td><b>Dead / wrong UI.</b> IFPL "Route Adopted" always "-" (wrong index); Payload Criticality column-sort off-by-N; Timeline "Time Window" filter read but never applied + all days collapsed onto one 24h axis.</td><td class="ln">14091·14792·12301</td><td class="eff">~2h</td></tr>
+        <tr><td class="id">12</td><td><b>Batch minors:</b> <code>parseFloat("06:38")</code>=6h; "00:00:01s"; multi-day <code>dataDate</code> showed first date only; Errors capped at 100 silently; duplicate <code>goToChangeMgmt</code>.</td><td class="ln">—</td><td class="eff">~1h</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- P2 -->
+  <div class="lane">
+    <div class="lane-h"><span class="ptag p2">P2</span><span class="lbl-lane">Latent value — analytics the 127 columns already support</span><span class="done">✓ 6 shipped</span></div>
+    <div class="scroll">
+    <table class="r">
+      <thead><tr><th>Idea</th><th>Columns</th><th>Effort</th></tr></thead>
+      <tbody>
+        <tr><td><b>Alternate-quality scoring</b> — rank ALTN_FUEL_1–4, flag where "SEQ BY USER" picked a costlier first alternate than min-fuel. <span class="why">Closest to the planned-vs-flown / RAD workflow — done first.</span></td><td class="ln">ALTN_*, ALTN_SEQ</td><td class="eff">~1d</td></tr>
+        <tr><td><b>Hold-time delay attribution</b> — ATC vs WX hold per destination / time-of-day (which airports force hold fuel), not fleet totals.</td><td class="ln">ATC/WX_HOLD_TIME</td><td class="eff">~½d</td></tr>
+        <tr><td><b>CO₂ per route / per intent</b> — joined into Route Analysis deltas &amp; city-pair table (previously only global sums).</td><td class="ln">CO2_COST</td><td class="eff">~½d</td></tr>
+        <tr><td><b>Offload economics</b> — OFFLOAD kg vs tankering SAVINGS: MALTOW-driven or fuel-decision-driven?</td><td class="ln">OFFLOAD, MALTOW</td><td class="eff">~½d</td></tr>
+        <tr><td><b>Wind-optimization effectiveness</b> — AIR_DISTANCE vs TRIP_DISTANCE + wind comp per route (was only in the record modal).</td><td class="ln">AIR_DISTANCE</td><td class="eff">~½d</td></tr>
+        <tr><td><b>Configurable ANC rate</b> — replaced the hardcoded $2/nm that drives the Payload tab's headline ranking.</td><td class="ln">—</td><td class="eff">small</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- P3 -->
+  <div class="lane">
+    <div class="lane-h"><span class="ptag p3">P3</span><span class="lbl-lane">Architecture · robustness · performance</span><span class="done">✓ CDNs vendored + esc()</span></div>
+    <ul class="tight">
+      <li><b>Vendor the CDN deps</b> — inline Chart.js 3.9.1 + xlsx, remove the Google-Fonts import → restore the air-gap property. Guard <code>typeof Chart</code>. <span class="flag kb">KB</span> — matches the "SVG&gt;Chart.js" lesson. <b style="color:var(--green)">✓ shipped</b></li>
+      <li><b>Escape untrusted fields before <code>innerHTML</code></b> — one <code>esc()</code> at template boundaries for ERROR_MESSAGE / ATS_HISTORY / ITEM15 / SKYVECTOR href. <b style="color:var(--green)">✓ shipped</b></li>
+      <li><b>Extract data → <code>autoperf_data.json</code></b>, add IndexedDB persistence so reload doesn't re-import. <span class="flag kb">KB</span></li>
+      <li><b>Split the JS monolith into IIFE modules</b> — bug #1 <i>is</i> the entropy cost of one 10,600-line scope; keep single-file distribution via trivial concat.</li>
+      <li><b>Robust CSV parser</b> (state-machine for escaped quotes / embedded newlines) + warn when a row ≠ 127 columns. <b>Debounce the render chain</b> (filters trigger ~10 full rebuilds) and virtualize the Timeline SVG / errors table.</li>
+      <li><b>Light-mode toggle + tab search</b> across the tabs. <span class="flag kb">KB</span></li>
+    </ul>
+    <p style="margin:12px 2px 0;color:var(--muted);font-size:13px"><b style="color:var(--green)">Shipped:</b> CDN vendoring (Chart.js + xlsx inline, offline-safe) &amp; <code>esc()</code> XSS hardening. <b style="color:var(--muted)">Still open</b> (larger architectural work, deferred): JSON-data extraction + IndexedDB persistence, the module split, the state-machine CSV parser, render-chain debounce / Timeline virtualization, and light-mode + tab search.</p>
+  </div>
+</section>
+
+<!-- ORDER -->
+<section>
+  <h2>The order it was executed in</h2>
+  <div class="order">
+    <div class="seq">
+      <span class="a">①</span> P1&nbsp;#3 schema guard &nbsp;→&nbsp; <span class="a">②</span> #1 / #2 / #11 headline metrics &nbsp;→&nbsp; <span class="a">③</span> #7 / #8 / #9 identity &amp; UI &nbsp;→&nbsp; <span class="a">④</span> rest of P1<br>
+      <span class="b">⑤</span> vendor CDNs + <code>esc()</code> <b style="color:var(--muted);font-weight:400">before the next external demo</b> &nbsp;→&nbsp; <span class="c">⑥</span> P2 by dispatcher demand — <b style="color:var(--text)">alternate-quality &amp; hold-attribution first</b>
+    </div>
+    <p style="margin:14px 0 0;color:var(--muted);font-size:13.5px">And the highest-leverage structural move stays on the table: <b style="color:var(--text)">make the Power BI model the source of truth</b> — port <code>UNQ_AUTPER</code> + the negative-elapsed &amp; timing-identity guards into the viewer so the two implementations can't drift.</p>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- 02 · BUSINESS REGISTER                                           -->
+<!-- ================================================================ -->
+<div class="secdiv" id="business" style="--acc:var(--gold)">
+  <p class="kick">02 · Opportunity Register</p>
+  <p class="t">Business <span class="dim">Improvement Register</span></p>
+  <p class="sub">Mined from the tool's own <b>Glossary</b> — the documented business semantics of QR's flight-planning system. Ten prioritized opportunities across fuel $, dispatcher hours, compute capacity, filing quality and policy, each grounded in specific glossary evidence and checked for feasibility against the 127 columns.</p>
+  <div class="chips">
+    <span class="chip">basis: <b>Glossary L3453–4294</b> + 127-col sample</span>
+    <span class="chip">scale: <b>~6,862</b> calcs · <b>~604</b> filings/day</span>
+    <span class="chip"><b>10</b> opportunities · data-quality fixes</span>
+  </div>
 </div>
+
+<!-- TOP 3 -->
+<section>
+  <h2 class="a-gold">The money threads — act on these first</h2>
+  <p class="h2sub">Ranked by evidence-to-decision speed and business value.</p>
+  <div class="hero">
+    <div class="money">
+      <span class="rank">P1 · fuel $ · NEW</span>
+      <h3>Missed &amp; capped tankering</h3>
+      <div class="big">~$4M/yr<small>illustrative upper bound</small></div>
+      <p><code>GAIN</code>/<code>LOSS</code> (USD/ton) sit on <b>every</b> OFP whether tankering ran or not; <code>SAVINGS</code> only when executed. So flights that were <b>favorable but not tankered</b> (<code>TANKERING_REASON=NO/blank</code>) and <code>MAXB</code>/<code>MAXH</code>-capped ones are directly countable. Break-even documented (ZFWCF≈0.027/hr).</p>
+      <div class="foot">Zero operational change · one script over a month settles it</div>
+    </div>
+    <div class="money">
+      <span class="rank">P3 · capacity + risk · extend</span>
+      <h3>Compute queue × batch pruning</h3>
+      <div class="big">57 min<small>peak CALC_DELAY tail</small></div>
+      <p>Pure CPU queue wait is normally 25 s but reaches <b>~57 min under load</b> — a late-OFP hazard near STD. Demand-side fix within your AOS-config authority: <b>prune FREEOPT/OPTI candidates that never win</b> per city pair + kill recurring error-burners (e.g. the <code>RAPET–MASEK</code> segment defect).</p>
+      <div class="foot">Frees the CPU headroom that makes P2 free</div>
+    </div>
+    <div class="money">
+      <span class="rank">P2 · governance · extend</span>
+      <h3>File-then-optimize gate</h3>
+      <div class="big">~1:1<small>Changed per initial filing</small></div>
+      <p>AOS files a crude PRED route ~3 min after compute <b>start</b>, optimizes 20–58 min, then <code>CHG</code>s it — yet the evidence shows <b>9.75 h of lead time</b>. 484 <code>Filed+Sent</code> vs <b>447 Changed</b>/day. A one-line policy — <b>hold filing until the batch completes when <code>Hrs_Before_STD</code> &gt; threshold</b> — cuts ATC churn and aligns filed-vs-optimized.</p>
+      <div class="foot">Serves the RAD / planned-vs-flown agenda · costs nothing</div>
+    </div>
+  </div>
+</section>
+
+<!-- FULL REGISTER -->
+<section>
+  <h2 class="a-gold">Full register</h2>
+  <p class="h2sub"><span class="lever l-fuel">fuel&nbsp;$</span> <span class="lever l-time">dispatcher&nbsp;hrs</span> <span class="lever l-cap">compute</span> <span class="lever l-risk">risk/safety</span> <span class="lever l-pol">policy</span> &nbsp;·&nbsp; <span class="tag-new">new</span> = no tab computes it · <span class="tag-ext">extend</span> = builds on an existing tab.</p>
+  <div class="scroll">
+  <table class="bz">
+    <thead><tr><th>#</th><th>Opportunity &amp; evidence</th><th>Lever</th><th>Metric / columns</th><th></th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="p">P1</td>
+        <td><span class="opp">Missed &amp; capped tankering</span><span class="ev">GAIN/LOSS on every OFP; SAVINGS only when executed. Money left on the apron.</span></td>
+        <td><span class="lever l-fuel">fuel $</span></td>
+        <td>Missed$ = <code>GAIN</code>×min(<code>MALTOW−TOW</code>,<code>MALLW−LW</code>); capped = <code>MAXB/MAXH</code><span class="ev">All columns present. Flag: blank vs "NO"; small per-ton → show distribution.</span></td>
+        <td><span class="tag-new">new</span></td>
+      </tr>
+      <tr>
+        <td class="p">P2</td>
+        <td><span class="opp">File-then-optimize gate</span><span class="ev">Files crude route at compute start; CHGs after optimizing. 9.75 h lead time available.</span></td>
+        <td><span class="lever l-risk">risk</span> <span class="lever l-fuel">fuel $</span></td>
+        <td>Filed <code>ITEM15</code>/<code>COST</code> vs batch-best; count downstream <code>Changed</code>; group by <code>SCENARIO</code></td>
+        <td><span class="tag-ext">extend</span></td>
+      </tr>
+      <tr>
+        <td class="p">P3</td>
+        <td><span class="opp">Compute queue × batch pruning</span><span class="ev">CALC_DELAY tail 57 min; prune never-winning FREEOPT/OPTI per city pair.</span></td>
+        <td><span class="lever l-cap">compute</span> <span class="lever l-risk">risk</span></td>
+        <td>Concurrency from <code>[CALC_TIME, +ELAPSED]</code>; win-rate &amp; $/CPU-s by <code>ROUTE_TYPE</code>×pair</td>
+        <td><span class="tag-ext">extend</span></td>
+      </tr>
+      <tr>
+        <td class="p">P4</td>
+        <td><span class="opp">NORULE rule-coverage gaps</span><span class="ev">OFFICE=NORULE = no AOS routing rule matched → manual cost + unruled route.</span></td>
+        <td><span class="lever l-time">dispatcher hrs</span> <span class="lever l-pol">policy</span></td>
+        <td>NORULE/day by city pair &amp; recurrence; rank "rules to write" by flights/yr covered</td>
+        <td><span class="tag-new">new</span></td>
+      </tr>
+      <tr>
+        <td class="p">P5</td>
+        <td><span class="opp">Human-intervention ROI</span><span class="ev">Split 35.5% human records into improve / neutral re-send / cost. Live proof: +$176 &amp; +266 kg from one re-sequence.</span></td>
+        <td><span class="lever l-time">dispatcher hrs</span> <span class="lever l-fuel">fuel $</span></td>
+        <td>Signed Δ<code>COST</code>/Δ<code>TRIP_FUEL</code> vs best AOS (ZFW-gated), decomposed route/altn/adders</td>
+        <td><span class="tag-ext">extend</span></td>
+      </tr>
+      <tr>
+        <td class="p">P6</td>
+        <td><span class="opp">Alternate-policy codification</span><span class="ev">Glossary's own "to be analyzed" TODO — humans re-sequence "BY USER" with carried-fuel cost, no written policy.</span></td>
+        <td><span class="lever l-fuel">fuel $</span> <span class="lever l-pol">policy</span></td>
+        <td>Ordering premium = <code>ALTN_FUEL_1</code>−min(<code>ALTN_FUEL_1..4</code>); cluster by destination<span class="ev">Upper bound — wx/curfew not in data.</span></td>
+        <td><span class="tag-ext">extend</span></td>
+      </tr>
+      <tr>
+        <td class="p">P7</td>
+        <td><span class="opp">Filing ordering &amp; REJ asymmetry</span><span class="ev">Human REJ 8:1 vs AOS; opposite crew-vs-ATC ordering (AOS 97% crew-first, human 99% ATC-first).</span></td>
+        <td><span class="lever l-risk">safety</span> <span class="lever l-time">dispatcher hrs</span></td>
+        <td>"Sent→Changed REJ" exposure; human REJ taxonomy from <code>ATS_HISTORY</code>/<code>IFPUV_MESSAGE</code> → pre-file checklist</td>
+        <td><span class="tag-ext">extend</span></td>
+      </tr>
+      <tr>
+        <td class="p">P8</td>
+        <td><span class="opp">Error-driven compute waste</span><span class="ev">Errored OFPs burn full ROUTOPT then produce nothing; recurring segment defects are fixable.</span></td>
+        <td><span class="lever l-cap">compute</span> <span class="lever l-pol">coverage</span></td>
+        <td>Σ<code>ELAPSED</code> over <code>*_ERROR=1</code>; top recurring <code>ERROR_IDENTIFIER</code> pairs</td>
+        <td><span class="tag-ext">extend</span></td>
+      </tr>
+      <tr>
+        <td class="p">P9</td>
+        <td><span class="opp">RECALC delegation expansion</span><span class="ev">RECALC (7.3%) = dispatchers already delegate to AOS via right-click. Find manual work that could delegate.</span></td>
+        <td><span class="lever l-time">dispatcher hrs</span></td>
+        <td>Human iterations within noise of preceding AOS <code>ITEM15</code>/<code>COST</code>, by <code>OFFICE</code></td>
+        <td><span class="tag-ext">extend</span></td>
+      </tr>
+      <tr>
+        <td class="p">P10</td>
+        <td><span class="opp">Governance / data-capture gaps</span><span class="ev">SCENARIO undocumented · CO2_COST empty · SUFFIX not in company policy.</span></td>
+        <td><span class="lever l-pol">policy</span></td>
+        <td>Document <code>SCENARIO</code>; verify <code>CO2_COST</code> population; one-page SUFFIX precedence policy</td>
+        <td><span class="tag-new">new</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- DATA QUALITY -->
+<section>
+  <h2 class="a-gold">Data-quality fixes that unblock the above</h2>
+  <p class="h2sub">Cheap to fix, found while verifying against the real sample — actioned.</p>
+  <div class="dq">
+    <div class="item">
+      <h4>SCENARIO — undocumented</h4>
+      <p>Present as CSV col 17 but absent from the glossary — it's the clean <b>batch/event key</b> that P2/P3/P7 need. → added to the Glossary + data dictionary.</p>
+    </div>
+    <div class="item">
+      <h4>CO₂_COST — empty</h4>
+      <p><code>CO2_COST</code> blank in all 10 sample rows. If true at scale, route-level CORSIA/EU-ETS costing is dark (and the CO₂-per-intent analytic runs empty). → verify population; likely a LIDO config ticket.</p>
+    </div>
+    <div class="item">
+      <h4>Glossary example misalignment</h4>
+      <p><code>ALTN_SEQ</code>/<code>CONT_POLICY</code>/<code>VOLAR</code> example values didn't match the columns. → corrected in the Glossary tab.</p>
+    </div>
+    <div class="item">
+      <h4>Dictionary lagged 93-col</h4>
+      <p><code>AUTOPERF_DATA_DICTIONARY.md</code> still described 93 columns. → refreshed with a 127-Column Additions section + tankering-economics note.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SEQUENCING -->
+<section>
+  <h2 class="a-gold">Sequencing</h2>
+  <div class="seqbox">
+    <ol>
+      <li><span class="g">P1 tankering</span> — fastest evidence-to-$ loop; a month of extracts either reveals a recurring 6–7-figure number or honestly closes the question. <b>(Built into the viewer — the Tankering Opportunity panel, with the GAIN/LOSS-as-factors framing from Backlog #4.)</b></li>
+      <li><span class="g">P3 compute queue + P8 error-burners</span> — an operational-risk signal you can act on with AOS-config authority; creates headroom that makes P2 free.</li>
+      <li><span class="g">P2 file-then-optimize gate</span> — highest governance leverage per unit effort; measure the delta for a month, then a one-line config decision to Flight Ops.</li>
+    </ol>
+    <p style="margin:12px 0 0"><b>Second wave:</b> P5 (human-intervention ROI) &amp; P6 (alternate policy) — they reuse the viewer's fair-comparison machinery, but they touch people's work, so bring them after wins 1–3 give the register credibility.</p>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- 03 · IMPROVEMENT BACKLOG                                         -->
+<!-- ================================================================ -->
+<div class="secdiv" id="backlog" style="--acc:var(--green)">
+  <p class="kick">03 · Improvement Backlog</p>
+  <p class="t">Fifteen Points <span class="dim">— All Shipped</span></p>
+  <p class="sub">Fifteen enhancement points on top of the P1+P2+P3 build, each recorded as <b>current shape → what shipped</b> with the real, verified code/UI it touched in <span class="il">autoperf_viewer_127.html</span>. All fifteen are live in <b>Backlog Build v1</b>.</p>
+  <div class="chips">
+    <span class="chip"><b>15</b> points · 2 batches</span>
+    <span class="chip ok"><b>✓ ALL 15 SHIPPED</b> · Backlog Build v1</span>
+    <span class="chip">ships in <b>autoperf_viewer_127_backlog.html</b> · 2,209,281 B</span>
+    <span class="chip">base: <b>autoperf_viewer_127.html</b> · 2,137,975 B · untouched</span>
+    <span class="chip">line refs verified <b>2026-07-09</b></span>
+  </div>
+  <div class="legend">
+    <span><span class="tag t-new">new</span> feature</span>
+    <span><span class="tag t-refine">refine</span> existing</span>
+    <span><span class="tag t-fix">fix</span> correctness</span>
+    <span><span class="tag t-global">global</span> all tabs</span>
+    <span><span class="tag t-done">✓ shipped</span> in Backlog Build v1</span>
+    <span class="eff">effort: S / M / L</span>
+  </div>
+</div>
+
+<div class="note" style="border-left-color:var(--green)">
+  <b style="color:var(--green)">✓ All 15 points implemented &amp; verified — "Backlog Build v1"</b> (<span class="il">autoperf_viewer_127_backlog.html</span>, 2,209,281 B). node --check 4/4 · harnesses green (backlog suite 59/59) · <b>0 console errors</b> live on the 7,140-row dataset. Highlights: new <b>Route Structure</b> tab (15k-row CSV/paste), <b>CSV/XLSX export + sort/resize on every table</b>, error full-text + category grouping, <b>With-ATS / ✓ Completed</b> filter (641 flights → 563 completed), editable High/Med/Light payload bands, GAIN/LOSS-as-factors tankering, block-time haul, IATA/ICAO city-pair search, DOW flight counts, the <b>LSY external-support</b> user rule, and three new <b>Change-Management</b> cards (Flown-vs-Batch-Best · Cross-Day Instances · AOS-vs-Filed route diff). Base <span class="il">autoperf_viewer_127.html</span> untouched. The cards below record each point as <b>current shape → what shipped</b>.
+</div>
+
+<!-- ============ A. DATA & LOAD ============ -->
+<section>
+<h2 class="a-data">A · Data ingestion &amp; load</h2>
+<p class="h2sub">How weeks of files come in, who the records belong to, and a new route dataset.</p>
+
+<div class="req a-data">
+  <div class="req-head">
+    <div class="rnum">1</div>
+    <div class="req-title"><h3>Multi-week load</h3><p>Drop many weeks at once, not one 7-file week at a time.</p></div>
+    <div class="tags"><span class="tag t-refine">refine</span><span class="tag t-done">✓ shipped</span><span class="eff">S</span></div>
+  </div>
+  <div class="shape">
+    <div class="col now"><p class="lbl now">current shape</p>
+      <pre><span class="c">// loadFiles: sequential FileReader chain, yields the UI</span>
+<span class="c">// thread every 5 files; each file goes through smartMerge</span>
+<span class="c">// (per-flight dedupe/replace via workflowFingerprint):</span>
+<span class="k">if</span> (completed % <span class="n">5</span> === <span class="n">0</span>) { setTimeout(processNext, <span class="n">0</span>); }
+<span class="k">else</span> { processNext(); }</pre>
+      <p class="prose">There was <b>no 7-file cap</b> — the picker/drop is <code>multiple</code> and N files merge in one go. The "one week at a time" limit was workflow habit, not code.</p>
+      <p class="ref">loadFiles ~L4736 · yield ~L4797 · smartMerge ~L4829</p></div>
+    <div class="col"><p class="lbl done">what shipped</p>
+      <pre>Drop <span class="n">any number</span> of files (multiple
+weeks) in one gesture — confirmed and
+<span class="n">validated at multi-week scale</span>: merge
+correctness across week boundaries
+verified on the 7,140-row dataset.</pre>
+      <p class="prose">Multi-day views already existed (Workforce weekly, Timeline date labels, dataDate range) and now consume the merged span.</p></div>
+  </div>
+</div>
+
+<div class="req a-data">
+  <div class="req-head">
+    <div class="rnum">2</div>
+    <div class="req-title"><h3>Unlisted-user rule — LSY external support</h3><p><span class="il">U</span>+digit IDs not in the users .xlsx are Lufthansa Systems help desk — assigned <b>LSY</b>, not "QR DSP".</p></div>
+    <div class="tags"><span class="tag t-refine">refine</span><span class="tag t-done">✓ shipped</span><span class="eff">S</span></div>
+  </div>
+  <div class="shape">
+    <div class="col now"><p class="lbl now">current shape</p>
+      <pre><span class="c">// getDeptInfo (~L4581) and deptBadge (~L4587):</span>
+<span class="k">var</span> dep = userDeptMap[userId] || getUserDept(userId)
+  || <span class="s">'QR DSP'</span>;  <span class="c">// EVERY unlisted user → QR DSP</span>
+<span class="c">// upstream, classifyUnknownUser also defaulted to</span>
+<span class="c">// airline+' DSP' by OFP behavior</span></pre>
+      <p class="ref">getDeptInfo ~L4581 · deptBadge ~L4587 · classifyUnknownUser ~L4534</p></div>
+    <div class="col"><p class="lbl done">what shipped</p>
+      <pre><span class="k">var</span> dep = userDeptMap[userId] || getUserDept(userId)
+  || (<span class="n">/^U\d/</span>.test(userId) ? <span class="s">'LSY'</span> : <span class="s">'QR DSP'</span>);
+<span class="c">// LSY = Lufthansa Systems help desk — external</span>
+<span class="c">// support, outside Qatar Airways. New deptCategories</span>
+<span class="c">// entry (category "External Support"). Same guard in</span>
+<span class="c">// classifyUnknownUser; buildUserDeptMap stays SSOT.</span></pre>
+      <p class="prose"><b>Resolved:</b> pattern is <code>/^U\d/</code> (U then a digit). Users listed in the .xlsx <b>always take precedence</b> — the LSY rule applies only to unlisted matches.</p></div>
+  </div>
+</div>
+
+<div class="req a-data">
+  <div class="req-head">
+    <div class="rnum">5</div>
+    <div class="req-title"><h3>Route-structure analysis</h3><p>New: assess route <b>structure</b> from pasted strings or a 15,000+ row CSV/Excel catalog.</p></div>
+    <div class="tags"><span class="tag t-new">new</span><span class="tag t-done">✓ shipped</span><span class="eff">L</span></div>
+  </div>
+  <div class="shape">
+    <div class="col now"><p class="lbl now">current shape</p>
+      <pre><span class="c">// No route-catalog ingest before this. Route paths existed</span>
+<span class="c">// only as per-OFP ITEM15 strings; the nearest machinery was</span>
+<span class="c">// extractWaypoints() (~L8362, strips /speed-level per P1)</span>
+<span class="c">// and ormClassify/ormDetectOceanic in Operated Route Mix.</span></pre>
+      <p class="ref">extractWaypoints ~L8362 · ormClassify ~L7886</p></div>
+    <div class="col"><p class="lbl done">what shipped</p>
+      <pre><span class="c">// Shipped as a NEW "Route Structure" tab:</span>
+<span class="c">// (a) paste multiple route strings, or</span>
+<span class="c">// (b) CSV/Excel, 11 cols, 15,000+ rows:</span>
+record_type, airline, route_code, route_status,
+purpose, from_airport, from_ctry, to_airport,
+to_ctry, miles, <span class="n">route_path</span></pre>
+      <p class="prose">Chunked/streamed parse + non-blocking render; the P3-inlined <b>SheetJS</b> handles the Excel read. Analyzes structure per O&amp;D / country / status / purpose; reuses the waypoint extractor for path composition. <b>Resolved:</b> new tab (not an extension of Route Analysis).</p></div>
+  </div>
+</div>
+
+<div class="req a-data">
+  <div class="req-head">
+    <div class="rnum">6</div>
+    <div class="req-title"><h3>Batch ledger</h3><p>Running ledger for requirement batches.</p></div>
+    <div class="tags"><span class="tag t-meta">meta</span><span class="eff">—</span></div>
+  </div>
+  <div class="shape">
+    <div class="col now"><p class="lbl now">current shape</p>
+      <pre><span class="c">// Batch 1 = points 1–5 · Batch 2 = points 7–15.</span></pre></div>
+    <div class="col"><p class="lbl done">status</p>
+      <pre>Both batches delivered in Backlog Build v1.
+This dossier remains the running ledger
+for any future points.</pre></div>
+  </div>
+</div>
+</section>
+
+<!-- ============ B. TABLES & EXPORT ============ -->
+<section>
+<h2 class="a-tbl">B · Tables &amp; export</h2>
+<p class="h2sub">Make every table behave the same and get data out.</p>
+
+<div class="req a-tbl">
+  <div class="req-head">
+    <div class="rnum">7</div>
+    <div class="req-title"><h3>All tables sortable + adjustable</h3><p>Sort by <b>any</b> column and resize columns — everywhere, via one helper.</p></div>
+    <div class="tags"><span class="tag t-global">global</span><span class="tag t-refine">refine</span><span class="tag t-done">✓ shipped</span><span class="eff">M</span></div>
+  </div>
+  <div class="shape">
+    <div class="col now"><p class="lbl now">current shape</p>
+      <pre><span class="c">&lt;!-- many tables WERE already sortable, e.g.: --&gt;</span>
+&lt;th <span class="n">data-sort</span>=<span class="s">"CALLSIGN"</span> onclick=<span class="s">"sortTable('CALLSIGN')"</span>&gt;
+<span class="c">// …but via SEVEN separate per-tab sorters:</span>
+<span class="c">// sortTable ~L9950 · pcSortTable ~L16136 ·</span>
+<span class="c">// deSortTable ~L13720 · ormSortTable ~L7953 ·</span>
+<span class="c">// sortIfplTable ~L15433 · sortModifiedTable ~L8132 ·</span>
+<span class="c">// sortWorkforceGantt ~L14053. No column resize anywhere.</span></pre>
+      <p class="ref">th[data-sort] ~L2327</p></div>
+    <div class="col"><p class="lbl done">what shipped</p>
+      <pre>One shared <span class="n">makeSortable(table, keys)</span> +
+drag-handle column resize, applied to ALL tables
+(flights, errors, hold, tankering, alternates,
+workforce, IFPL, route-mix, payload…).
+The seven bespoke sorters retired onto it.</pre>
+      <p class="prose">Several previously-static tables (errors, hold-by-destination, tankering top-N, alternates) gained sorting for the first time.</p></div>
+  </div>
+</div>
+
+<div class="req a-tbl">
+  <div class="req-head">
+    <div class="rnum">8</div>
+    <div class="req-title"><h3>Export any table (CSV / Excel)</h3><p>Every table gets an Export → CSV and .xlsx.</p></div>
+    <div class="tags"><span class="tag t-new">new</span><span class="tag t-global">global</span><span class="tag t-done">✓ shipped</span><span class="eff">M</span></div>
+  </div>
+  <div class="shape">
+    <div class="col now"><p class="lbl now">current shape</p>
+      <pre><span class="c">// No export control anywhere — data was view-only DOM.</span>
+<span class="c">// But the writer library was already on board:</span>
+<span class="c">/* SheetJS xlsx 0.18.5 (xlsx.full.min.js) — vendored</span>
+<span class="c">   inline for offline use (P3 #1) */</span></pre>
+      <p class="ref">vendored SheetJS block ~L51 · XLSX guard ~L4600</p></div>
+    <div class="col"><p class="lbl done">what shipped</p>
+      <pre>Reusable <span class="n">exportTable(el, name, 'csv'|'xlsx')</span>:
+CSV natively; XLSX via the inlined SheetJS
+(<span class="il">XLSX.utils.table_to_book</span> + writeFile).
+One Export control in every table header —
+pairs with the #7 shared helper.</pre></div>
+  </div>
+</div>
+</section>
+
+<!-- ============ C. ANALYTICS CORRECTNESS ============ -->
+<section>
+<h2 class="a-anl">C · Analytics correctness</h2>
+<p class="h2sub">Get the numbers right: haul basis, counts, tankering semantics, hold economics.</p>
+
+<div class="req a-anl">
+  <div class="req-head">
+    <div class="rnum">10</div>
+    <div class="req-title"><h3>Haul type from BLOCK time</h3><p>One classifier, block-time based (STA−STD) — the file previously used <b>two</b>.</p></div>
+    <div class="tags"><span class="tag t-fix">fix</span><span class="tag t-done">✓ shipped</span><span class="eff">S</span></div>
+  </div>
+  <div class="shape">
+    <div class="col now"><p class="lbl now">current shape</p>
+      <pre><span class="c">// A derived, block-based classifier existed:</span>
+r.Haul_Block_Time = computeHaulBlockTime(r.STA, r.STD);
+<span class="c">// (STA−STD): ≤3h SH · ≤6h MH · ≤12h LH · else ULH ✓</span>
+<span class="c">// …but two surfaces still read the RAW CSV column:</span>
+haulTypes[<span class="n">r.HAUL_TYPE</span>]  <span class="c">// renderAnalytics ~L10167</span>
+(r.<span class="n">HAUL_TYPE</span> || '').trim() <span class="c">// computeCityPairCriticality ~L15512</span></pre>
+      <p class="ref">derived ~L5113 · computeHaulBlockTime ~L5214 · block readers: renderFlights ~L10032 / lifecycle ~L9332</p></div>
+    <div class="col"><p class="lbl done">what shipped</p>
+      <pre>Every consumer standardized on
+<span class="n">Haul_Block_Time</span> (block = STA−STD).
+The two raw-HAUL_TYPE readers switched
+(Analytics haul breakdown, Payload
+Criticality haul grouping); raw
+HAUL_TYPE visible only as a labelled
+"CSV says" cross-check.</pre>
+      <p class="prose">Confirmed: HAUL_TYPE <b>is</b> an original CSV column (col 15); the derived one is the block-time rule.</p></div>
+  </div>
+</div>
+
+<div class="req a-anl">
+  <div class="req-head">
+    <div class="rnum">11</div>
+    <div class="req-title"><h3>Day-of-week: add flight count</h3><p>Count flights per weekday, not just OFP rows.</p></div>
+    <div class="tags"><span class="tag t-refine">refine</span><span class="tag t-done">✓ shipped</span><span class="eff">S</span></div>
+  </div>
+  <div class="shape">
+    <div class="col now"><p class="lbl now">current shape</p>
+      <pre>r.Day_of_Week = computeDayOfWeek(r.STD);
+<span class="c">// UTC-frame since P1 fix #4 (~L5199)</span>
+<span class="c">// tally counted OFP ROWS only:</span>
+data.forEach(r =&gt; { <span class="k">if</span> (r.Day_of_Week)
+  dowCounts[r.Day_of_Week - <span class="n">1</span>]++; });</pre>
+      <p class="ref">computeDayOfWeek ~L5199 · getDayOfWeekBreakdown tally ~L12006 · consumers ~L5455 / ~L10281</p></div>
+    <div class="col"><p class="lbl done">what shipped</p>
+      <pre>Per weekday: <span class="n">OFPs</span> AND distinct
+<span class="n">flights</span> (Set of flightKey per DOW),
+side-by-side in the DOW bar chart +
+overview "Busiest Day" insight.</pre>
+      <p class="prose">Uses the composite <code>flightKey</code> identity standardized in P1 #7.</p></div>
+  </div>
+</div>
+
+<div class="req a-anl">
+  <div class="req-head">
+    <div class="rnum">4</div>
+    <div class="req-title"><h3>Tankering: GAIN/LOSS are factors</h3><p>USD/ton estimation <b>factors</b> on every OFP — not money results. SAVINGS is the only realized number (tanker-performed flights).</p></div>
+    <div class="tags"><span class="tag t-fix">fix</span><span class="tag t-done">✓ shipped</span><span class="eff">S</span></div>
+  </div>
+  <div class="shape">
+    <div class="col now"><p class="lbl now">current shape</p>
+      <pre><span class="c">// Tankering Opportunity panel (~L10586):</span>
+<span class="k">const</span> tonnes = Math.max(<span class="n">0</span>, Math.min(
+    maltow - tow, mallw - lw)) / <span class="n">1000</span>;
+<span class="k">const</span> missedUsd = <span class="n">gain</span> * tonnes;
+<span class="c">// already banner-hedged ("upper bound", "review the</span>
+<span class="c">// distribution…", blank≡NO caveat ~L10607/~L10706),</span>
+<span class="c">// but the KPI still read "Est. Missed Tankering $"</span></pre>
+      <p class="ref">~L10586-87 · assumption banner ~L10607 · "upper bound" note ~L10706</p></div>
+    <div class="col"><p class="lbl done">what shipped</p>
+      <pre>Reframed: <span class="n">GAIN/LOSS</span> = indicative $/tonne
+FACTORS present on every OFP.
+KPI → <span class="s">"Favorable-factor exposure"</span>
+(indicative), never hard "missed $".
+<span class="n">SAVINGS</span> (tanker-performed only) stays
+the sole REALIZED headline number.</pre>
+      <p class="prose">Tightened the honesty framing the panel already carried — semantics, small edit.</p></div>
+  </div>
+</div>
+
+<div class="req a-anl">
+  <div class="req-head">
+    <div class="rnum">13</div>
+    <div class="req-title"><h3>Hold-by-STA: add fuel &amp; cost</h3><p>The hold-by-arrival-time (STA, UTC) view gains fuel + cost dimensions.</p></div>
+    <div class="tags"><span class="tag t-refine">refine</span><span class="tag t-done">✓ shipped</span><span class="eff">M</span></div>
+  </div>
+  <div class="shape">
+    <div class="col now"><p class="lbl now">current shape</p>
+      <pre><span class="c">// renderHoldTimeAnalysis (~L10991): per destination —</span>
+<span class="c">// Flights w/ Hold · ATC min · WX min · Total · Share ·</span>
+<span class="c">// Driver (ATC-/WX-driven) — plus a 4-band strip</span>
+<span class="c">// "Hold by Arrival Time (STA, UTC)" (~L11064)</span>
+<span class="c">// showing MINUTES only. No fuel, no cost.</span></pre>
+      <p class="ref">renderHoldTimeAnalysis ~L10991 · STA strip ~L11064 · container #holdTimeAnalysis ~L2513</p></div>
+    <div class="col"><p class="lbl done">what shipped</p>
+      <pre>Fuel &amp; cost per destination and per
+STA band, derived from <span class="n">GAIN/LOSS</span> where
+applicable — labelled per #4 as
+<span class="s">indicative factors, not realized $</span>
+(reuses the honesty-banner pattern).</pre></div>
+  </div>
+</div>
+</section>
+
+<!-- ============ D. SEARCH & TAGGING ============ -->
+<section>
+<h2 class="a-srch">D · Search &amp; tagging</h2>
+<p class="h2sub">Find city pairs by airport code, and flag the truly-completed flights.</p>
+
+<div class="req a-srch">
+  <div class="req-head">
+    <div class="rnum">3</div>
+    <div class="req-title"><h3>City-pair search (IATA / ICAO)</h3><p>Free-text 3-letter IATA or 4-letter ICAO code → filter city-pair tables.</p></div>
+    <div class="tags"><span class="tag t-new">new</span><span class="tag t-done">✓ shipped</span><span class="eff">S</span></div>
+  </div>
+  <div class="shape">
+    <div class="col now"><p class="lbl now">current shape</p>
+      <pre><span class="c">// A global Route DROPDOWN existed (pick a whole pair):</span>
+<span class="c">// populateCityPairFilter ~L8493 / filterByCityPair.</span>
+<span class="c">// Operated Route Mix had STD-band + aircraft selects</span>
+<span class="c">// ("Matrix filters:" ~L8035). But NO free-text</span>
+<span class="c">// airport-code search on any city-pair table.</span></pre>
+      <p class="ref">populateCityPairFilter ~L8493 · orm filters ~L8035</p></div>
+    <div class="col"><p class="lbl done">what shipped</p>
+      <pre>One search input accepting <span class="n">IATA(3)</span> or
+<span class="n">ICAO(4)</span>; matches either end of the pair
+against DEPARTURE/DESTINATION + the
+_IATA columns. <span class="s">Resolved:</span> landed on
+<span class="n">Operated Route Mix</span> first, then
+Payload Criticality.</pre></div>
+  </div>
+</div>
+
+<div class="req a-srch">
+  <div class="req-head">
+    <div class="rnum">12</div>
+    <div class="req-title"><h3>"Completed" tag + "with ATS" search</h3><p>Flag flights where <span class="il">LAST_SENT=1</span> AND the ATS lifecycle is complete; filter by it everywhere.</p></div>
+    <div class="tags"><span class="tag t-new">new</span><span class="tag t-done">✓ shipped</span><span class="eff">M</span></div>
+  </div>
+  <div class="shape">
+    <div class="col now"><p class="lbl now">current shape</p>
+      <pre><span class="c">// OFP-level hook existed — classifyRteStatus (~L5180):</span>
+<span class="k">if</span> (r.LAST_SENT === <span class="s">'1'</span>) <span class="k">return</span> <span class="s">'Tagged'</span>;
+<span class="c">// and parseAtsHistory/classifyFilingWorkflow already</span>
+<span class="c">// parsed the full ATS lifecycle — but no FLIGHT-level</span>
+<span class="c">// "Completed" tag, and no search integration.</span></pre>
+      <p class="ref">classifyRteStatus ~L5180 · parseAtsHistory ~L8596 · updateFilingStats ~L8552</p></div>
+    <div class="col"><p class="lbl done">what shipped</p>
+      <pre>Flight-level tag (by <span class="n">flightKey</span>):
+<span class="n">Completed</span> = LAST_SENT=1 ∧ ATS lifecycle
+complete (filed/changed→ACK, no dangling REJ).
+Badge on Flights/Lifecycle rows + a
+<span class="s">"With ATS / ✓ Completed"</span> option in the
+global filter bar. On the reference set:
+<span class="n">641</span> flights with ATS → <span class="n">563</span> completed.</pre></div>
+  </div>
+</div>
+</section>
+
+<!-- ============ E. CONFIG & UX ============ -->
+<section>
+<h2 class="a-cfg">E · Config &amp; UX</h2>
+<p class="h2sub">Make thresholds tunable, surface full error detail, sharpen Change Mgmt.</p>
+
+<div class="req a-cfg">
+  <div class="req-head">
+    <div class="rnum">14</div>
+    <div class="req-title"><h3>Configurable payload bands</h3><p>Define the High / Medium / Light payload thresholds in-app.</p></div>
+    <div class="tags"><span class="tag t-refine">refine</span><span class="tag t-done">✓ shipped</span><span class="eff">S</span></div>
+  </div>
+  <div class="shape">
+    <div class="col now"><p class="lbl now">current shape</p>
+      <pre><span class="c">// computePayloadCategory (~L5226) — hardcoded %:</span>
+<span class="k">if</span> (pct &gt;= <span class="n">80</span>) <span class="k">return</span> <span class="s">'Full'</span>;
+<span class="k">if</span> (pct &gt;= <span class="n">60</span>) <span class="k">return</span> <span class="s">'High'</span>;
+<span class="k">if</span> (pct &gt;= <span class="n">40</span>) <span class="k">return</span> <span class="s">'Medium'</span>;  <span class="c">// else Light</span>
+<span class="c">// pcGetBand (~L15621) criticality bands also fixed:</span>
+<span class="c">// ≥90 CRITICAL · ≥70 HIGH · ≥50 MODERATE · LOW</span></pre>
+      <p class="ref">computePayloadCategory ~L5226 · pcGetBand ~L15621</p></div>
+    <div class="col"><p class="lbl done">what shipped</p>
+      <pre>Editable threshold inputs, exactly the
+<span class="n">ANC-rate pattern</span> already shipped:
+setAncRate (~L15463) + KPI-card input
+(~L15666) → validate, invalidate cache,
+re-render, toast. Applied to both the
+payload bands and the criticality bands.</pre></div>
+  </div>
+</div>
+
+<div class="req a-cfg">
+  <div class="req-head">
+    <div class="rnum">9</div>
+    <div class="req-title"><h3>Error tab: full text + category grouping</h3><p>Whole error message; group by category; counts on the info card.</p></div>
+    <div class="tags"><span class="tag t-fix">fix</span><span class="tag t-refine">refine</span><span class="tag t-done">✓ shipped</span><span class="eff">M</span></div>
+  </div>
+  <div class="shape">
+    <div class="col now"><p class="lbl now">current shape</p>
+      <pre><span class="c">// renderErrors (~L10068) — flat list, truncated cell:</span>
+${esc(r.ERROR_MESSAGE.<span class="n">substring(0, 120)</span>)}...
+<span class="c">// capped: "Showing first 100 of N error records"</span>
+<span class="c">// (errorsPagination note, ~L10107). Overview card</span>
+<span class="c">// (#errorCategories ~L5445) showed top-5 counts only.</span></pre>
+      <p class="ref">truncation ~L10099 · cap note ~L10107 · overview card ~L5445</p></div>
+    <div class="col"><p class="lbl done">what shipped</p>
+      <pre>Row → expandable full <span class="n">ERROR_MESSAGE</span>
+(esc()'d, pre-wrapped detail).
+<span class="n">Rows grouped by ERROR_CATEGORY</span> with
+collapsible headers + per-category counts;
+the full grouping (not top-5) mirrored on
+the overview error info-card.</pre></div>
+  </div>
+</div>
+
+<div class="req a-cfg">
+  <div class="req-head">
+    <div class="rnum">15</div>
+    <div class="req-title"><h3>Improve Change Management tab</h3><p>Sharpen the deepest single-flight view.</p></div>
+    <div class="tags"><span class="tag t-refine">refine</span><span class="tag t-done">✓ shipped</span><span class="eff">M</span></div>
+  </div>
+  <div class="shape">
+    <div class="col now"><p class="lbl now">current shape</p>
+      <pre><span class="c">// analyzeFlightChangesByKey (~L12273, P1 #7 chooser):</span>
+<span class="c">// config diffs · ZFW/LOAD analysis · route-name perf ·</span>
+<span class="c">// economics ranking · SVG Gantt w/ zoom · workflow</span>
+<span class="c">// summary. One flight instance (CALLSIGN_DATE_STD)</span>
+<span class="c">// at a time.</span></pre>
+      <p class="ref">analyzeFlightChangesByKey ~L12273</p></div>
+    <div class="col"><p class="lbl done">what shipped</p>
+      <pre>Three new Change-Management cards:
+<span class="n">Flown-vs-Batch-Best</span> — filed route vs the
+  best route the batch produced
+<span class="n">Cross-Day Instances</span> — the same flight
+  compared across the loaded days
+<span class="n">AOS-vs-Filed route diff</span> — waypoint-level
+  diff of automation vs what was filed</pre>
+      <p class="prose"><b>Resolved:</b> scope settled and shipped — the three cards above, integrated with the Completed-tag context (#12) and table export (#8).</p></div>
+  </div>
+</div>
+</section>
+
+<div class="note" style="border-left-color:var(--green)">
+  <b>Status:</b> all 15 points shipped &amp; verified in <span class="il">autoperf_viewer_127_backlog.html</span> ("Backlog Build v1", 2,209,281 B). The base P1+P2+P3 build (<span class="il">autoperf_viewer_127.html</span>, 2,137,975 B) is untouched on disk, with a byte-identical email copy <span class="il">autoperf_viewer_127F.txt</span>. All "current shape" snippets and ~line refs were verified against the base build on 2026-07-09. Formerly-open questions — <b>all resolved in the build</b>:
+  <ul>
+    <li><b>#2 resolved:</b> pattern is <span class="il">/^U\d/</span>; unlisted matches → <b>LSY — Lufthansa Systems help desk</b> (new deptCategories entry, category "External Support", outside Qatar Airways). Listed users always take precedence.</li>
+    <li><b>#3 resolved:</b> IATA/ICAO city-pair search shipped — Operated Route Mix first, then Payload Criticality.</li>
+    <li><b>#5 resolved:</b> Route Structure shipped as a <b>new tab</b> (paste + 15k-row CSV/Excel catalog).</li>
+    <li><b>#15 resolved:</b> Change-Management improvements shipped (Flown-vs-Batch-Best · Cross-Day Instances · AOS-vs-Filed diff).</li>
+  </ul>
+</div>
+
+<footer>
+  <span>AutoPerf 127 · consolidated dossier · audit + business + backlog</span>
+  <span>code logic only — no data · private</span>
+  <span><a href="#top">↑ top</a></span>
+</footer>
+</div>
+
 </body>
 </html>
