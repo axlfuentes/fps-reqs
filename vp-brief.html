@@ -267,6 +267,17 @@
     background:color-mix(in srgb,#B3453A 9%,transparent);border-radius:0 8px 8px 0;
     font-size:13px;color:var(--ink);line-height:1.5}
   .recon-warn.show{display:block}
+  /* audience scope selector (FPS / QR management / Qatar Executive) */
+  .scopebar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    padding:10px 18px;background:var(--raise);border-bottom:1px solid var(--line-strong);box-shadow:var(--shadow);}
+  .scopebar .lbl{font-family:var(--sans);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-right:4px;}
+  .scopebar button{font-family:var(--sans);font-size:13px;padding:6px 14px;border-radius:999px;cursor:pointer;
+    border:1px solid var(--line-strong);background:var(--surface);color:var(--muted);}
+  .scopebar button.active{background:var(--maroon);border-color:var(--maroon);color:#fff;font-weight:600;}
+  @media (prefers-color-scheme:dark){ .scopebar button.active{color:var(--bg);} }
+  :root[data-theme="dark"] .scopebar button.active{color:var(--bg);}
+  :root[data-theme="light"] .scopebar button.active{color:#fff;}
+  .scopebar .scopenote{font-family:var(--sans);font-size:11.5px;color:var(--faint);margin-left:auto;max-width:52ch;}
 </style>
 </head>
 <body>
@@ -305,22 +316,32 @@ window.__VP_PAYLOAD = null;
 <!-- ═══════════ DECK ═══════════ -->
 <div id="deck">
 
+<!-- AUDIENCE SELECTOR — re-scopes the DISPLAY; sheet + reconciliation stay fleet-level -->
+<div class="scopebar" id="scopeBar" role="tablist" aria-label="Audience">
+  <span class="lbl">Audience</span>
+  <button type="button" class="active" data-scope="all">FPS · Whole portfolio</button>
+  <button type="button" data-scope="qr">QR management</button>
+  <button type="button" data-scope="qe">Qatar Executive · QE/Q0</button>
+  <span class="scopenote" id="scopeNote"></span>
+</div>
+
 <!-- 01 · COVER -->
 <section class="slide" id="s01" aria-label="Cover">
   <div class="watermark" aria-hidden="true">127</div>
   <p class="kicker">Qatar Airways <span class="sep">·</span> Flight Planning Systems <span class="sep">·</span> Executive brief</p>
+  <p class="kicker" style="margin-top:4px;"><span class="no" data-vp="derived.scope_title">—</span></p>
   <hr class="cover-rule">
   <h1>The flight plans we already produce, <span class="em">turned into decisions.</span></h1>
   <p class="lead">AutoPerf 127 reads the calculation record behind every flight plan — <b>127 data fields per plan</b> — and answers the questions leadership actually asks about fuel, staffing, reliability and routes. This edition of the brief is rendered from a <b>live aggregate export</b> of the operation’s own data.</p>
   <span class="live-badge"><span class="dot" aria-hidden="true"></span> Real numbers · <span data-vp="derived.period_label">—</span></span>
   <div class="cover-meta">
-    <div class="cell"><p class="k">Prepared for</p><p class="v">VP review</p></div>
+    <div class="cell"><p class="k">Prepared for</p><p class="v" data-vp="derived.scope_label">VP review</p></div>
     <div class="cell"><p class="k">Data period</p><p class="v mn" data-vp="derived.period_label">—</p></div>
     <div class="cell"><p class="k">Calculation records</p><p class="v mn" data-vp="volume.records" data-fmt="int">—</p></div>
     <div class="cell"><p class="k">Export generated</p><p class="v mn" data-vp="derived.generated_label">—</p></div>
     <div class="cell"><p class="k">Version</p><p class="v mn" data-vp="derived.sync_label">—</p></div>
   </div>
-  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>01</b> / 10</span></div>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>01</b> / 12</span></div>
 </section>
 
 <!-- 02 · THE DATASET -->
@@ -335,12 +356,28 @@ window.__VP_PAYLOAD = null;
     <div class="stat"><div class="n"><span data-vp="volume.aos_share_pct" data-fmt="pct">—</span></div><div class="l">of records produced by AOS automation; the rest are human dispatch work</div><div class="src">From export</div></div>
   </div>
   <p class="quiet">Coverage: <span data-vp="derived.days_label">—</span> · <span data-vp="volume.city_pairs" data-fmt="int">—</span> city pairs · <span data-vp="volume.files_loaded" data-fmt="int">—</span> source file(s) merged &amp; de-duplicated in AutoPerf.</p>
-  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>02</b> / 10</span></div>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>02</b> / 12</span></div>
+</section>
+
+<!-- 02b · BY AIRLINE — THE FPS-MANAGED PORTFOLIO -->
+<section class="slide" id="s02b" aria-label="By airline — the FPS-managed portfolio">
+  <p class="kicker"><span class="no">B</span> <span class="sep">·</span> One system, every airline</p>
+  <h2>FPS plans for the <span class="em">whole portfolio</span> — not only the flag carrier.</h2>
+  <p class="lead">Qatar Airways is the headline of this brief, but FPS plans the <b>whole portfolio</b> — QR, QE (Qatar A7) and Q0 (Malta 9H) own brands, plus 6E (IndiGo) &amp; VA (Virgin Australia) wet-lease partners on QR’s Qatar aircraft — <span data-vp="volume.airlines" data-fmt="int">—</span> carriers in this period’s data, all computed, optimized and filed through the one FPS-managed platform. <b>QR DSP dispatches QR plus the wet-lease partners 6E &amp; VA; QE DSP dispatches QE &amp; Q0.</b></p>
+  <div class="readout">
+    <table>
+      <caption>By airline · <span data-vp="derived.period_label">—</span> · <span class="fd">from pasted export</span> · sorted by flights</caption>
+      <thead><tr><th>Airline</th><th>Own / Wet-lease</th><th>Registration</th><th>Managed by</th><th>Flights</th><th>OFPs</th><th>OFP/Flt</th><th>Realized savings</th><th>Completion</th></tr></thead>
+      <tbody id="byAirlineRows"><tr><td class="dim" colspan="9">—</td></tr></tbody>
+    </table>
+  </div>
+  <p class="quiet" style="margin-top:12px;">Flights = distinct flights (callsign·date·STD); OFPs = calculation records behind them. Every flight is classified strictly by its own airline identity (AIRLINE/OPERATOR/CALLSIGN) — wet-lease = an external airline identity (not a Qatar Group brand) flying on QR’s Qatar-registered (A7) aircraft. Realized savings = booked tankering SAVINGS on each flight’s representative OFP — the same honest rule as the fuel example, never the GAIN/LOSS estimation factors. Completion = lifecycle-clean flights ÷ flights with ATS activity.</p>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>03</b> / 12</span></div>
 </section>
 
 <!-- 03 · WHAT IT IS + HOW TO READ -->
 <section class="slide" id="s03" aria-label="What it is and how to read this brief">
-  <p class="kicker"><span class="no">B</span> <span class="sep">·</span> What AutoPerf 127 is</p>
+  <p class="kicker"><span class="no">C</span> <span class="sep">·</span> What AutoPerf 127 is</p>
   <h2>One file. Any laptop. Offline. <span class="em">No data leaves the building.</span></h2>
   <p class="lead">A single HTML console that opens in a standard browser — no server, no installation, no vendor. An analyst drops in the operation’s own log files and the tool turns them into decision-ready views. For this brief the console exported <b>one small block of roll-up numbers</b>; the raw records stayed where they live.</p>
   <p class="lead">Each benefit follows one pattern:</p>
@@ -351,7 +388,7 @@ window.__VP_PAYLOAD = null;
     <div class="arrow" aria-hidden="true">→</div>
     <div class="step last"><p class="t">The decision it enables</p><p>What a manager can now decide that they could not before.</p></div>
   </div>
-  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>03</b> / 10</span></div>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>04</b> / 12</span></div>
 </section>
 
 <!-- 04 · EXAMPLE 1 — FUEL / TANKERING -->
@@ -386,7 +423,7 @@ window.__VP_PAYLOAD = null;
     </div>
   </div>
   <p class="wx-note"><span class="lbl">Read honestly</span><b>GAIN/LOSS are indicative $-per-tonne factors, not money earned.</b> SAVINGS — recorded only when tankering was actually performed — is the sole realized figure. This brief never adds the two together.</p>
-  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>04</b> / 10</span></div>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>05</b> / 12</span></div>
 </section>
 
 <!-- 05 · EXAMPLE 2 — WORKFORCE -->
@@ -401,6 +438,7 @@ window.__VP_PAYLOAD = null;
     <div class="wx-row wx-s">
       <div class="wx-rail"><b>What AutoPerf shows</b></div>
       <div class="wx-body">
+        <p style="margin-bottom:8px;"><b data-vp="derived.manpower_label">—</b></p>
         <p>The Dispatcher Efficiency view works in real <b>12-hour Doha roster shifts</b> (day 06:00–18:00, night 18:00–06:00 local). <b>Working window</b> = the rostered hours with activity. <b>Processing</b> = wall-clock time the optimizer was actually computing, with parallel calculations merged so they count once. This period, merging removed a <b data-vp="capacity.parallel_overcount_corrected_pct" data-fmt="pct">—</b> over-count that naïve summing would have reported.</p>
         <div class="readout">
           <table>
@@ -421,7 +459,7 @@ window.__VP_PAYLOAD = null;
     </div>
   </div>
   <p class="wx-note"><span class="lbl">Read honestly</span><b>“Processing” counts machine compute time only.</b> Briefing, coordination, phone calls and monitoring never enter the log — so the utilization figure is an <b>optimizer-utilisation indicator for capacity planning, not a measure of how busy a dispatcher is</b>. It must not be read as a productivity scorecard.</p>
-  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>05</b> / 10</span></div>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>06</b> / 12</span></div>
 </section>
 
 <!-- 06 · EXAMPLE 3 — RELIABILITY / FILING -->
@@ -455,7 +493,7 @@ window.__VP_PAYLOAD = null;
       <div class="wx-body"><p>Gaps surface <b>while there is still time to act — before departure, not in a call from the gate</b>. The same filter turns weekly filing quality into one trackable number a duty manager can own.</p></div>
     </div>
   </div>
-  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>06</b> / 10</span></div>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>07</b> / 12</span></div>
 </section>
 
 <!-- 07 · EXAMPLE 4 — ROUTE / PAYLOAD -->
@@ -486,7 +524,7 @@ window.__VP_PAYLOAD = null;
       <div class="wx-body"><p>Route-review and tankering attention gets <b>ranked by leverage instead of by anecdote</b> — the sectors flying closest to their limits are examined first, because that is where one decision moves the most payload.</p></div>
     </div>
   </div>
-  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>07</b> / 10</span></div>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>08</b> / 12</span></div>
 </section>
 
 <!-- 08 · EXAMPLE 5 — CALCULATION QUALITY -->
@@ -517,12 +555,33 @@ window.__VP_PAYLOAD = null;
       <div class="wx-body"><p>Fix effort goes to the <b>largest measured cause, not the loudest anecdote</b> — and next period’s export shows whether the fix moved the number.</p></div>
     </div>
   </div>
-  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>08</b> / 10</span></div>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>09</b> / 12</span></div>
+</section>
+
+<!-- 08b · FPS TEAM — OUR ROLE & VALUE -->
+<section class="slide" id="s08b" aria-label="FPS team — our role and value">
+  <p class="kicker"><span class="no">The team</span> <span class="sep">·</span> FPS — Flight Planning Systems</p>
+  <h2>FPS owns the route structure <span class="em">behind every plan.</span></h2>
+  <p class="lead">FPS is the flight-planning <b>support team</b>: it supports every Lido 4D user — QR DSP and QE DSP — live on the day of operation, coordinates with the LSY (Lufthansa Systems) help desk, and performs and validates routes. <b>The route structure is FPS’s product</b>: every predefined route (PREDs, Optipreds, the DEFRTE library) and every optimization mode the engine offers comes from FPS — dispatchers select them, and FPS builds or inserts the route into the final tagged OFP when needed. The data speaks:</p>
+  <div class="readout">
+    <table>
+      <caption>FPS route structure in use · <span data-vp="derived.period_label">—</span> · <span class="fd">from pasted export</span> · fleet-wide in every audience view (FPS supports both desks)</caption>
+      <tbody>
+        <tr><td class="k">AOS automation rate</td><td class="v" data-vp="fps_value.aos_automation_pct" data-fmt="pct">—</td><td class="dim">of all calculation records produced by the automated optimizer</td></tr>
+        <tr><td class="k">Engine free optimization (FREEOPT)</td><td class="v"><span data-vp="fps_value.freeopt_ofps" data-fmt="int">—</span> <span class="dim">(<span data-vp="fps_value.freeopt_share_pct" data-fmt="pct">—</span>)</span></td><td class="dim">FPS-provided modes — <span data-vp="derived.opti_mix_label">—</span> (min cost / fuel / distance / time)</td></tr>
+        <tr><td class="k">Defined routes (DEFRTE)</td><td class="v"><span data-vp="fps_value.defrte_ofps" data-fmt="int">—</span> <span class="dim">(<span data-vp="fps_value.defrte_share_pct" data-fmt="pct">—</span>)</span></td><td class="dim">selected from the FPS-maintained library — QR DSP <span data-vp="fps_value.defrte_qr_dsp" data-fmt="int">—</span> · QE DSP <span data-vp="fps_value.defrte_qe_dsp" data-fmt="int">—</span></td></tr>
+        <tr><td class="k">AOS route adopted manually</td><td class="g"><span data-vp="fps_value.aos_adopted_manually" data-fmt="int">—</span> <span class="dim">(<span data-vp="fps_value.aos_adopted_pct" data-fmt="pct">—</span> of AOS)</span></td><td class="dim">dispatcher copied the AOS-optimized route into a defined route — the optimizer’s output trusted enough to adopt</td></tr>
+        <tr><td class="k">Predefined route library</td><td class="v" data-vp="fps_value.predefined_routes" data-fmt="int">—</td><td class="dim">distinct defined routes in use this period — built and maintained by FPS</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="quiet" style="margin-top:12px;">Usage rates measured from the period’s own records — how often each FPS-built structure was actually used, not a claim. Shown fleet-wide in every audience view: FPS supports the whole Lido 4D DB.</p>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>10</b> / 12</span></div>
 </section>
 
 <!-- 09 · LOW RISK -->
 <section class="slide" id="s09" aria-label="Why it is low risk">
-  <p class="kicker"><span class="no">C</span> <span class="sep">·</span> Why it is low risk</p>
+  <p class="kicker"><span class="no">D</span> <span class="sep">·</span> Why it is low risk</p>
   <h2>Enterprise-safe <span class="em">by construction.</span></h2>
   <p class="lead">The properties a review committee asks about first are not add-ons — they are how the tool, and this brief, are built.</p>
   <ul class="assure">
@@ -532,12 +591,12 @@ window.__VP_PAYLOAD = null;
     <li><div class="h">Zero licensing cost</div><div class="d">Built in-house on data the operation <b>already generates every day</b>. No new spend to start, none to continue.</div></li>
     <li><div class="h">One version of the truth</div><div class="d">The tool, its documentation and this brief carry <b>one synchronized version stamp — <span data-vp="derived.sync_label">—</span></b> — so everyone reads the same build.</div></li>
   </ul>
-  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>09</b> / 10</span></div>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>11</b> / 12</span></div>
 </section>
 
 <!-- 10 · CLOSING -->
 <section class="slide" id="s10" aria-label="Closing">
-  <p class="kicker"><span class="no">D</span> <span class="sep">·</span> The opportunity</p>
+  <p class="kicker"><span class="no">E</span> <span class="sep">·</span> The opportunity</p>
   <h1>Proven in-house. <span class="em">Ready to scale.</span></h1>
   <p class="lead">One period of the operation’s own data — <b><span data-vp="volume.records" data-fmt="int">—</span> calculation records, <span data-vp="volume.flights" data-fmt="int">—</span> flights, <span data-vp="capacity.dispatchers" data-fmt="int">—</span> dispatchers</b> — already answers questions about fuel, staffing, reliability and routes, with the caveats stated, at zero incremental cost. The capability is live and verified. The decision on the table is how widely to apply it: more desks, more weeks of history, and the improvement register it has opened.</p>
   <div class="close-meta">
@@ -546,7 +605,7 @@ window.__VP_PAYLOAD = null;
   </div>
   <p class="quiet">Aggregated figures only — no per-flight operational data is present in this page or its payload. Source export generated <span data-vp="derived.generated_label">—</span>.</p>
   <p class="quiet"><button class="reset-link" id="resetBtn" type="button">↺ render with a different export</button></p>
-  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>10</b> / 10</span></div>
+  <div class="chrome"><span>AutoPerf 127 · Executive brief · live data</span><span class="folio"><b>12</b> / 12</span></div>
 </section>
 
 <!-- RECONCILIATION APPENDIX — acceptance check across the three surfaces -->
@@ -648,7 +707,99 @@ window.__VP_PAYLOAD = null;
     ['Filing', 'Completion rate', 'filing.completion_rate_pct', '%'],
     ['Filing', 'Filed to ATC', 'filing.filed_flights', 'flights'],
     ['Quality', 'Records with an error', 'quality.error_records', 'records'],
-    ['Quality', 'Error rate', 'quality.error_rate_pct', '%']
+    ['Quality', 'Error rate', 'quality.error_rate_pct', '%'],
+    ['By Airline', '#1 airline', 'by_airline.0.code', 'code'],
+    ['By Airline', '#1 flights', 'by_airline.0.flights', 'flights'],
+    ['By Airline', '#1 OFPs', 'by_airline.0.ofps', 'OFPs'],
+    ['By Airline', '#1 OFPs per flight', 'by_airline.0.ofp_per_flight', 'ratio'],
+    ['By Airline', '#1 realized savings', 'by_airline.0.realized_savings_usd', 'USD'],
+    ['By Airline', '#1 filing completion', 'by_airline.0.completion_rate_pct', '%'],
+    ['By Airline', '#1 own or wet-lease', 'by_airline.0.lease', ''],
+    ['By Airline', '#1 managed by', 'by_airline.0.managed_by', 'dept'],
+    ['By Airline', '#1 registration country', 'by_airline.0.reg_country', 'country'],
+    ['By Airline', '#2 airline', 'by_airline.1.code', 'code'],
+    ['By Airline', '#2 flights', 'by_airline.1.flights', 'flights'],
+    ['By Airline', '#2 OFPs', 'by_airline.1.ofps', 'OFPs'],
+    ['By Airline', '#2 OFPs per flight', 'by_airline.1.ofp_per_flight', 'ratio'],
+    ['By Airline', '#2 realized savings', 'by_airline.1.realized_savings_usd', 'USD'],
+    ['By Airline', '#2 filing completion', 'by_airline.1.completion_rate_pct', '%'],
+    ['By Airline', '#2 own or wet-lease', 'by_airline.1.lease', ''],
+    ['By Airline', '#2 managed by', 'by_airline.1.managed_by', 'dept'],
+    ['By Airline', '#2 registration country', 'by_airline.1.reg_country', 'country'],
+    ['By Airline', '#3 airline', 'by_airline.2.code', 'code'],
+    ['By Airline', '#3 flights', 'by_airline.2.flights', 'flights'],
+    ['By Airline', '#3 OFPs', 'by_airline.2.ofps', 'OFPs'],
+    ['By Airline', '#3 OFPs per flight', 'by_airline.2.ofp_per_flight', 'ratio'],
+    ['By Airline', '#3 realized savings', 'by_airline.2.realized_savings_usd', 'USD'],
+    ['By Airline', '#3 filing completion', 'by_airline.2.completion_rate_pct', '%'],
+    ['By Airline', '#3 own or wet-lease', 'by_airline.2.lease', ''],
+    ['By Airline', '#3 managed by', 'by_airline.2.managed_by', 'dept'],
+    ['By Airline', '#3 registration country', 'by_airline.2.reg_country', 'country'],
+    ['By Airline', '#4 airline', 'by_airline.3.code', 'code'],
+    ['By Airline', '#4 flights', 'by_airline.3.flights', 'flights'],
+    ['By Airline', '#4 OFPs', 'by_airline.3.ofps', 'OFPs'],
+    ['By Airline', '#4 OFPs per flight', 'by_airline.3.ofp_per_flight', 'ratio'],
+    ['By Airline', '#4 realized savings', 'by_airline.3.realized_savings_usd', 'USD'],
+    ['By Airline', '#4 filing completion', 'by_airline.3.completion_rate_pct', '%'],
+    ['By Airline', '#4 own or wet-lease', 'by_airline.3.lease', ''],
+    ['By Airline', '#4 managed by', 'by_airline.3.managed_by', 'dept'],
+    ['By Airline', '#4 registration country', 'by_airline.3.reg_country', 'country'],
+    ['By Airline', '#5 airline', 'by_airline.4.code', 'code'],
+    ['By Airline', '#5 flights', 'by_airline.4.flights', 'flights'],
+    ['By Airline', '#5 OFPs', 'by_airline.4.ofps', 'OFPs'],
+    ['By Airline', '#5 OFPs per flight', 'by_airline.4.ofp_per_flight', 'ratio'],
+    ['By Airline', '#5 realized savings', 'by_airline.4.realized_savings_usd', 'USD'],
+    ['By Airline', '#5 filing completion', 'by_airline.4.completion_rate_pct', '%'],
+    ['By Airline', '#5 own or wet-lease', 'by_airline.4.lease', ''],
+    ['By Airline', '#5 managed by', 'by_airline.4.managed_by', 'dept'],
+    ['By Airline', '#5 registration country', 'by_airline.4.reg_country', 'country'],
+    ['By Airline', '#6 airline', 'by_airline.5.code', 'code'],
+    ['By Airline', '#6 flights', 'by_airline.5.flights', 'flights'],
+    ['By Airline', '#6 OFPs', 'by_airline.5.ofps', 'OFPs'],
+    ['By Airline', '#6 OFPs per flight', 'by_airline.5.ofp_per_flight', 'ratio'],
+    ['By Airline', '#6 realized savings', 'by_airline.5.realized_savings_usd', 'USD'],
+    ['By Airline', '#6 filing completion', 'by_airline.5.completion_rate_pct', '%'],
+    ['By Airline', '#6 own or wet-lease', 'by_airline.5.lease', ''],
+    ['By Airline', '#6 managed by', 'by_airline.5.managed_by', 'dept'],
+    ['By Airline', '#6 registration country', 'by_airline.5.reg_country', 'country'],
+    ['By Management', 'QR DSP airlines managed', 'by_management.qr_dsp.airlines', 'codes'],
+    ['By Management', 'QR DSP wet-lease airlines', 'by_management.qr_dsp.wet_lease_airlines', 'airlines'],
+    ['By Management', 'QR DSP dispatcher manpower', 'by_management.qr_dsp.dispatcher_manpower', 'dispatchers'],
+    ['By Management', 'QR DSP flights', 'by_management.qr_dsp.flights', 'flights'],
+    ['By Management', 'QR DSP OFPs', 'by_management.qr_dsp.ofps', 'OFPs'],
+    ['By Management', 'QR DSP OFPs per flight', 'by_management.qr_dsp.ofp_per_flight', 'ratio'],
+    ['By Management', 'QR DSP realized savings', 'by_management.qr_dsp.realized_savings_usd', 'USD'],
+    ['By Management', 'QR DSP filing completion', 'by_management.qr_dsp.completion_rate_pct', '%'],
+    ['By Management', 'QR DSP roster window', 'by_management.qr_dsp.window_hours', 'hours'],
+    ['By Management', 'QR DSP processing', 'by_management.qr_dsp.processing_hours', 'hours'],
+    ['By Management', 'QR DSP idle', 'by_management.qr_dsp.idle_hours', 'hours'],
+    ['By Management', 'QR DSP utilization', 'by_management.qr_dsp.utilization_pct', '%'],
+    ['By Management', 'QE DSP airlines managed', 'by_management.qe_dsp.airlines', 'codes'],
+    ['By Management', 'QE DSP wet-lease airlines', 'by_management.qe_dsp.wet_lease_airlines', 'airlines'],
+    ['By Management', 'QE DSP dispatcher manpower', 'by_management.qe_dsp.dispatcher_manpower', 'dispatchers'],
+    ['By Management', 'QE DSP flights', 'by_management.qe_dsp.flights', 'flights'],
+    ['By Management', 'QE DSP OFPs', 'by_management.qe_dsp.ofps', 'OFPs'],
+    ['By Management', 'QE DSP OFPs per flight', 'by_management.qe_dsp.ofp_per_flight', 'ratio'],
+    ['By Management', 'QE DSP realized savings', 'by_management.qe_dsp.realized_savings_usd', 'USD'],
+    ['By Management', 'QE DSP filing completion', 'by_management.qe_dsp.completion_rate_pct', '%'],
+    ['By Management', 'QE DSP roster window', 'by_management.qe_dsp.window_hours', 'hours'],
+    ['By Management', 'QE DSP processing', 'by_management.qe_dsp.processing_hours', 'hours'],
+    ['By Management', 'QE DSP idle', 'by_management.qe_dsp.idle_hours', 'hours'],
+    ['By Management', 'QE DSP utilization', 'by_management.qe_dsp.utilization_pct', '%'],
+    ['FPS Value', 'AOS automation rate', 'fps_value.aos_automation_pct', '%'],
+    ['FPS Value', 'FREEOPT optimized OFPs', 'fps_value.freeopt_ofps', 'OFPs'],
+    ['FPS Value', 'FREEOPT share', 'fps_value.freeopt_share_pct', '%'],
+    ['FPS Value', 'DEFRTE defined-route OFPs', 'fps_value.defrte_ofps', 'OFPs'],
+    ['FPS Value', 'DEFRTE share', 'fps_value.defrte_share_pct', '%'],
+    ['FPS Value', 'AOS route adopted manually', 'fps_value.aos_adopted_manually', 'OFPs'],
+    ['FPS Value', 'AOS route adopted manually share', 'fps_value.aos_adopted_pct', '%'],
+    ['FPS Value', 'Optimization mode MCT (min cost)', 'fps_value.mode_mct', 'OFPs'],
+    ['FPS Value', 'Optimization mode MFT (min fuel)', 'fps_value.mode_mft', 'OFPs'],
+    ['FPS Value', 'Optimization mode MDT (min distance)', 'fps_value.mode_mdt', 'OFPs'],
+    ['FPS Value', 'Optimization mode MTT (min time)', 'fps_value.mode_mtt', 'OFPs'],
+    ['FPS Value', 'Predefined route library (distinct)', 'fps_value.predefined_routes', 'routes'],
+    ['FPS Value', 'DEFRTE by QR DSP', 'fps_value.defrte_qr_dsp', 'OFPs'],
+    ['FPS Value', 'DEFRTE by QE DSP', 'fps_value.defrte_qe_dsp', 'OFPs']
   ];
 
   /* ── Reconciliation anchors ─────────────────────────────────────────
@@ -791,6 +942,15 @@ window.__VP_PAYLOAD = null;
       }
       // unknown row → ignored (forward-compatible)
     }
+    // By Airline arrives as fixed #1..#6 spec slots (setPath builds a
+    // numeric-keyed object) → normalize to a dense array, dropping the empty
+    // slots an export with fewer than 6 airlines leaves blank.
+    if (p.by_airline) {
+      p.by_airline = Object.keys(p.by_airline)
+        .sort(function (a, b) { return (+a) - (+b); })
+        .map(function (k) { return p.by_airline[k]; })
+        .filter(function (e) { return e && e.code !== null && e.code !== undefined && e.code !== ''; });
+    }
     // Friendly error naming the FIRST missing required metric
     for (var s2 = 0; s2 < VP_CSV_SPEC.length; s2++) {
       var spec = VP_CSV_SPEC[s2];
@@ -854,7 +1014,51 @@ window.__VP_PAYLOAD = null;
       if (order.indexOf(k) === -1 && isNum(hm[k]) && hm[k] > 0) parts.push(k + ' ' + FMT.int(hm[k]));
     });
     d.haul_label = parts.length ? parts.join(' · ') : '—';
+    // audience scope labels + the DSP manpower headline (Axel org rule)
+    var scope = p.__scope || 'all';
+    var bm = p.by_management || {};
+    var qrM = bm.qr_dsp || {}, qeM = bm.qe_dsp || {};
+    d.scope_title = scope === 'qr' ? 'AutoPerf 127 — VP Brief · QR Management'
+      : scope === 'qe' ? 'AutoPerf 127 — VP Brief · Qatar Executive (QE/Q0)'
+      : 'AutoPerf 127 — VP Brief · FPS Portfolio';
+    d.scope_label = scope === 'qr' ? 'QR management — ' + (qrM.airlines || 'QR + 6E + VA')
+      : scope === 'qe' ? 'Qatar Executive — ' + (qeM.airlines || 'QE + Q0')
+      : 'FPS — whole portfolio (all airlines)';
+    d.manpower_label = scope === 'qr'
+      ? 'QR DSP manpower: ' + FMT.int(qrM.dispatcher_manpower) + ' dispatchers — dispatching ' + (qrM.airlines || '—')
+      : scope === 'qe'
+        ? 'QE DSP manpower: ' + FMT.int(qeM.dispatcher_manpower) + ' dispatchers — dispatching ' + (qeM.airlines || '—')
+        : 'Dispatcher manpower: QR DSP ' + FMT.int(qrM.dispatcher_manpower) + ' + QE DSP ' + FMT.int(qeM.dispatcher_manpower) +
+          ' dispatchers — FPS (support) manages the whole Lido 4D DB across both desks';
+    var fv = p.fps_value || {};
+    d.opti_mix_label = isNum(fv.mode_mft)
+      ? ('MFT fuel ' + FMT.int(fv.mode_mft) + ' · MCT cost ' + FMT.int(fv.mode_mct) +
+         ' · MTT time ' + FMT.int(fv.mode_mtt) + ' · MDT distance ' + FMT.int(fv.mode_mdt))
+      : '—';
     return { payload: p, derived: d };
+  }
+
+  /* ── audience scoping (Axel): FPS = whole portfolio; QR management = QR DSP's
+     airlines {QR,6E,VA}; Qatar Executive = QE DSP's {QE,Q0}. DISPLAY-only —
+     the pasted sheet, validation and the reconciliation strip stay
+     fleet-level (FPS support manages the whole Lido 4D DB). ── */
+  function scopedView(p, scope) {
+    var v = JSON.parse(JSON.stringify(p));
+    if (scope !== 'qr' && scope !== 'qe') { v.__scope = 'all'; return v; }
+    var g = (p.by_management || {})[scope === 'qr' ? 'qr_dsp' : 'qe_dsp'] || {};
+    v.__scope = scope;
+    v.volume.flights = isNum(g.flights) ? g.flights : null;
+    v.volume.records = isNum(g.ofps) ? g.ofps : null;
+    v.volume.airlines = (String(g.airlines || '').split('+').filter(function (x) { return x.trim(); })).length || null;
+    v.tankering.realized_savings_usd = isNum(g.realized_savings_usd) ? g.realized_savings_usd : null;
+    v.filing.completion_rate_pct = isNum(g.completion_rate_pct) ? g.completion_rate_pct : null;
+    v.capacity.dispatchers = isNum(g.dispatcher_manpower) ? g.dispatcher_manpower : null;
+    v.capacity.window_hours = isNum(g.window_hours) ? g.window_hours : null;
+    v.capacity.processing_hours = isNum(g.processing_hours) ? g.processing_hours : null;
+    v.capacity.utilization_pct = isNum(g.utilization_pct) ? g.utilization_pct : null;
+    var deptLabel = scope === 'qr' ? 'QR DSP' : 'QE DSP'; // dept name derives from the scope (dept isn't a CSV-carried field)
+    v.by_airline = (p.by_airline || []).filter(function (a) { return a.managed_by === deptLabel; });
+    return v;
   }
 
   /* ── render ── */
@@ -862,15 +1066,31 @@ window.__VP_PAYLOAD = null;
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  var vpOriginal = null;
+  var vpScope = 'all';
+  function setVpScope(s) {
+    vpScope = (s === 'qr' || s === 'qe') ? s : 'all';
+    Array.prototype.forEach.call(document.querySelectorAll('#scopeBar button'), function (b) {
+      b.classList.toggle('active', b.getAttribute('data-scope') === vpScope);
+    });
+    if (vpOriginal) renderDeck(vpOriginal);
+  }
+
   function renderDeck(p) {
-    var vm = buildViewModel(p);
-    // fill all data-vp slots
+    vpOriginal = p;
+    var view = scopedView(p, vpScope);       // display scope (audience selector)
+    var vm = buildViewModel(view);
+    var note = document.getElementById('scopeNote');
+    if (note) note.textContent = vpScope === 'all' ? '' :
+      'Scoped to ' + (vpScope === 'qr' ? 'QR management (QR + 6E + VA)' : 'Qatar Executive (QE + Q0)') +
+      ' — leverage routes, error, haul and fuel-factor figures remain fleet-level; the reconciliation strip stays whole-sheet.';
+    // fill all data-vp slots (from the SCOPED view)
     var nodes = document.querySelectorAll('[data-vp]');
     Array.prototype.forEach.call(nodes, function (el) {
       var path = el.getAttribute('data-vp');
       var val = (path.indexOf('derived.') === 0)
         ? vm.derived[path.slice(8)]
-        : getPath(p, path);
+        : getPath(view, path);
       var fmt = el.getAttribute('data-fmt') || 'raw';
       el.textContent = (FMT[fmt] || FMT.raw)(val === undefined ? null : val);
     });
@@ -889,6 +1109,31 @@ window.__VP_PAYLOAD = null;
           '<td>' + FMT.int(r.flights) + '</td>' +
           '<td class="v">' + FMT.pct(r.weight_util_pct) + '</td>' +
           '<td><span class="band-pill ' + bandCls + '">' + esc(band) + '</span></td>' +
+          '</tr>';
+      }).join('');
+    }
+    // by-airline table — the FPS-managed portfolio (fixed #1..#6 CSV slots).
+    // Own/wet-lease and registration country come FROM THE SHEET (the app
+    // classifies — wet-lease = external airline identity, not a Qatar Group
+    // brand, on QR's Qatar-registered aircraft; this deck only displays).
+    var ba = document.getElementById('byAirlineRows');
+    var airlines = Array.isArray(view.by_airline) ? view.by_airline.slice() : [];
+    airlines.sort(function (a, b) { return (b.flights || 0) - (a.flights || 0); });
+    if (airlines.length === 0) {
+      ba.innerHTML = '<tr><td class="dim" colspan="9">No by-airline data in this export.</td></tr>';
+    } else {
+      ba.innerHTML = airlines.map(function (a) {
+        var wet = String(a.lease || '').toLowerCase() === 'wet-lease';
+        return '<tr>' +
+          '<td class="k">' + esc(a.code || '—') + '</td>' +
+          '<td>' + (wet ? '<span class="band-pill band-MODERATE">Wet-lease</span>' : 'Own') + '</td>' +
+          '<td class="dim">' + esc(a.reg_country || '—') + '</td>' +
+          '<td class="dim">' + esc(a.managed_by || '—') + '</td>' +
+          '<td class="v">' + FMT.int(a.flights) + '</td>' +
+          '<td class="dim">' + FMT.int(a.ofps) + '</td>' +
+          '<td>' + FMT.num(a.ofp_per_flight) + '</td>' +
+          '<td class="g">' + FMT.usd(a.realized_savings_usd) + '</td>' +
+          '<td>' + FMT.pct(a.completion_rate_pct) + '</td>' +
           '</tr>';
       }).join('');
     }
@@ -953,6 +1198,10 @@ window.__VP_PAYLOAD = null;
   function clearGateError() {
     document.getElementById('gateError').classList.remove('show');
   }
+
+  Array.prototype.forEach.call(document.querySelectorAll('#scopeBar button'), function (b) {
+    b.addEventListener('click', function () { setVpScope(b.getAttribute('data-scope')); });
+  });
 
   document.getElementById('renderBtn').addEventListener('click', function () {
     clearGateError();
