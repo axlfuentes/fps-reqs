@@ -567,11 +567,12 @@ window.__VP_PAYLOAD = null;
     <table>
       <caption>FPS route structure in use · <span data-vp="derived.period_label">—</span> · <span class="fd">from pasted export</span> · fleet-wide in every audience view (FPS supports both desks)</caption>
       <tbody>
+        <tr><td class="k">Predefined route library (PRED + OPTI-PRED)</td><td class="v" data-vp="fps_value.predefined_share_pct" data-fmt="pct">—</td><td class="dim"><span data-vp="fps_value.pred_ofps" data-fmt="int">—</span> PRED + <span data-vp="fps_value.optipred_ofps" data-fmt="int">—</span> OPTI-PRED plans flew on the <span data-vp="fps_value.predefined_routes" data-fmt="int">—</span>-route library FPS builds and maintains</td></tr>
+        <tr><td class="k">System route vs dispatcher route</td><td class="v"><span data-vp="fps_value.system_route_flights" data-fmt="int">—</span> <span class="dim">vs</span> <span data-vp="fps_value.disp_route_flights" data-fmt="int">—</span></td><td class="dim">flights where the system/AOS route stood (<span data-vp="fps_value.system_route_share_pct" data-fmt="pct">—</span>) vs a dispatcher route prevailed — glossary classification</td></tr>
+        <tr><td class="k">Route adoption rate</td><td class="g" data-vp="fps_value.adoption_rate_pct" data-fmt="pct">—</td><td class="dim"><span data-vp="fps_value.adopted_flights" data-fmt="int">—</span> flights adopted the system route as filed · <span data-vp="fps_value.modified_flights" data-fmt="int">—</span> modified it</td></tr>
+        <tr><td class="k">Optimizer modes (FREEOPT, <span data-vp="fps_value.freeopt_share_pct" data-fmt="pct">—</span>)</td><td class="v" data-vp="derived.opti_mix_label">—</td><td class="dim">minimum cost / fuel / distance / time — every mode FPS-provided · NAT tracks <span data-vp="fps_value.nat_tracks" data-fmt="int">—</span></td></tr>
+        <tr><td class="k">Defined routes (DEFRTE family)</td><td class="v"><span data-vp="fps_value.defrte_saved" data-fmt="int">—</span> <span class="dim">saved ·</span> <span data-vp="fps_value.defrte_edited" data-fmt="int">—</span> <span class="dim">edited-not-saved</span></td><td class="dim">numeric route number = saved (inserted); literal DEFRTE = edited only — FPS-inserted <span data-vp="fps_value.defrte_fps_inserted" data-fmt="int">—</span> · dispatch-inserted <span data-vp="fps_value.defrte_dsp_inserted" data-fmt="int">—</span></td></tr>
         <tr><td class="k">AOS automation rate</td><td class="v" data-vp="fps_value.aos_automation_pct" data-fmt="pct">—</td><td class="dim">of all calculation records produced by the automated optimizer</td></tr>
-        <tr><td class="k">Engine free optimization (FREEOPT)</td><td class="v"><span data-vp="fps_value.freeopt_ofps" data-fmt="int">—</span> <span class="dim">(<span data-vp="fps_value.freeopt_share_pct" data-fmt="pct">—</span>)</span></td><td class="dim">FPS-provided modes — <span data-vp="derived.opti_mix_label">—</span> (min cost / fuel / distance / time)</td></tr>
-        <tr><td class="k">Defined routes (DEFRTE)</td><td class="v"><span data-vp="fps_value.defrte_ofps" data-fmt="int">—</span> <span class="dim">(<span data-vp="fps_value.defrte_share_pct" data-fmt="pct">—</span>)</span></td><td class="dim">selected from the FPS-maintained library — QR DSP <span data-vp="fps_value.defrte_qr_dsp" data-fmt="int">—</span> · QE DSP <span data-vp="fps_value.defrte_qe_dsp" data-fmt="int">—</span></td></tr>
-        <tr><td class="k">AOS route adopted manually</td><td class="g"><span data-vp="fps_value.aos_adopted_manually" data-fmt="int">—</span> <span class="dim">(<span data-vp="fps_value.aos_adopted_pct" data-fmt="pct">—</span> of AOS)</span></td><td class="dim">dispatcher copied the AOS-optimized route into a defined route — the optimizer’s output trusted enough to adopt</td></tr>
-        <tr><td class="k">Predefined route library</td><td class="v" data-vp="fps_value.predefined_routes" data-fmt="int">—</td><td class="dim">distinct defined routes in use this period — built and maintained by FPS</td></tr>
       </tbody>
     </table>
   </div>
@@ -787,19 +788,26 @@ window.__VP_PAYLOAD = null;
     ['By Management', 'QE DSP idle', 'by_management.qe_dsp.idle_hours', 'hours'],
     ['By Management', 'QE DSP utilization', 'by_management.qe_dsp.utilization_pct', '%'],
     ['FPS Value', 'AOS automation rate', 'fps_value.aos_automation_pct', '%'],
-    ['FPS Value', 'FREEOPT optimized OFPs', 'fps_value.freeopt_ofps', 'OFPs'],
-    ['FPS Value', 'FREEOPT share', 'fps_value.freeopt_share_pct', '%'],
-    ['FPS Value', 'DEFRTE defined-route OFPs', 'fps_value.defrte_ofps', 'OFPs'],
-    ['FPS Value', 'DEFRTE share', 'fps_value.defrte_share_pct', '%'],
-    ['FPS Value', 'AOS route adopted manually', 'fps_value.aos_adopted_manually', 'OFPs'],
-    ['FPS Value', 'AOS route adopted manually share', 'fps_value.aos_adopted_pct', '%'],
-    ['FPS Value', 'Optimization mode MCT (min cost)', 'fps_value.mode_mct', 'OFPs'],
-    ['FPS Value', 'Optimization mode MFT (min fuel)', 'fps_value.mode_mft', 'OFPs'],
-    ['FPS Value', 'Optimization mode MDT (min distance)', 'fps_value.mode_mdt', 'OFPs'],
-    ['FPS Value', 'Optimization mode MTT (min time)', 'fps_value.mode_mtt', 'OFPs'],
-    ['FPS Value', 'Predefined route library (distinct)', 'fps_value.predefined_routes', 'routes'],
-    ['FPS Value', 'DEFRTE by QR DSP', 'fps_value.defrte_qr_dsp', 'OFPs'],
-    ['FPS Value', 'DEFRTE by QE DSP', 'fps_value.defrte_qe_dsp', 'OFPs']
+    ['FPS Value', 'Predefined PRED OFPs', 'fps_value.pred_ofps', 'OFPs'],
+    ['FPS Value', 'Predefined OPTI-PRED OFPs', 'fps_value.optipred_ofps', 'OFPs'],
+    ['FPS Value', 'Predefined-system share', 'fps_value.predefined_share_pct', '%'],
+    ['FPS Value', 'Optimizer FREEOPT share', 'fps_value.freeopt_share_pct', '%'],
+    ['FPS Value', 'Optimizer mode Min Cost', 'fps_value.mode_min_cost', 'OFPs'],
+    ['FPS Value', 'Optimizer mode Min Fuel', 'fps_value.mode_min_fuel', 'OFPs'],
+    ['FPS Value', 'Optimizer mode Min Distance', 'fps_value.mode_min_dist', 'OFPs'],
+    ['FPS Value', 'Optimizer mode Min Time', 'fps_value.mode_min_time', 'OFPs'],
+    ['FPS Value', 'NAT track plans', 'fps_value.nat_tracks', 'OFPs'],
+    ['FPS Value', 'SYSTEM ROUTE flights', 'fps_value.system_route_flights', 'flights'],
+    ['FPS Value', 'DISP ROUTE flights', 'fps_value.disp_route_flights', 'flights'],
+    ['FPS Value', 'SYSTEM route share', 'fps_value.system_route_share_pct', '%'],
+    ['FPS Value', 'System route adopted (flights)', 'fps_value.adopted_flights', 'flights'],
+    ['FPS Value', 'System route modified (flights)', 'fps_value.modified_flights', 'flights'],
+    ['FPS Value', 'Route adoption rate', 'fps_value.adoption_rate_pct', '%'],
+    ['FPS Value', 'DEFRTE saved (numeric route no.)', 'fps_value.defrte_saved', 'OFPs'],
+    ['FPS Value', 'DEFRTE edited not saved', 'fps_value.defrte_edited', 'OFPs'],
+    ['FPS Value', 'DEFRTE inserted by FPS', 'fps_value.defrte_fps_inserted', 'OFPs'],
+    ['FPS Value', 'DEFRTE inserted by dispatch', 'fps_value.defrte_dsp_inserted', 'OFPs'],
+    ['FPS Value', 'Predefined route library (distinct)', 'fps_value.predefined_routes', 'routes']
   ];
 
   /* ── Reconciliation anchors ─────────────────────────────────────────
@@ -1031,9 +1039,9 @@ window.__VP_PAYLOAD = null;
         : 'Dispatcher manpower: QR DSP ' + FMT.int(qrM.dispatcher_manpower) + ' + QE DSP ' + FMT.int(qeM.dispatcher_manpower) +
           ' dispatchers — FPS (support) manages the whole Lido 4D DB across both desks';
     var fv = p.fps_value || {};
-    d.opti_mix_label = isNum(fv.mode_mft)
-      ? ('MFT fuel ' + FMT.int(fv.mode_mft) + ' · MCT cost ' + FMT.int(fv.mode_mct) +
-         ' · MTT time ' + FMT.int(fv.mode_mtt) + ' · MDT distance ' + FMT.int(fv.mode_mdt))
+    d.opti_mix_label = isNum(fv.mode_min_fuel)
+      ? ('Fuel ' + FMT.int(fv.mode_min_fuel) + ' · Cost ' + FMT.int(fv.mode_min_cost) +
+         ' · Time ' + FMT.int(fv.mode_min_time) + ' · Dist ' + FMT.int(fv.mode_min_dist))
       : '—';
     return { payload: p, derived: d };
   }
