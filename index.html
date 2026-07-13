@@ -288,7 +288,8 @@
     <span class="chip"><b>01</b> Audit — P1+P2+P3 remediation</span>
     <span class="chip"><b>02</b> Business — <b>10</b> opportunities</span>
     <span class="chip"><b>03</b> Backlog — <b>15 shipped</b></span>
-    <span class="chip" style="border-color:color-mix(in srgb,var(--cyan) 50%,transparent)" title="Synchronization level — app build · chat artifact · online, all aligned at this version"><b style="color:var(--cyan)">SYNC v2026.07.15</b> · app · artifact · online</span>
+    <span class="chip" style="border-color:color-mix(in srgb,var(--cyan) 50%,transparent)" title="Synchronization level — app build · chat artifact · online, all aligned at this version"><b style="color:var(--cyan)">SYNC v2026.07.16</b> · app · artifact · online</span>
+    <span class="chip"><b>v2026.07.16</b> — per-team roster windows: QR DSP 08:00–20:00 / 20:00–08:00 · FPS 06:00–18:00 / 18:00–06:00 (Doha). Fixes DSP nights being split into two blocks, and the Workforce shift cards that were slicing day/night on the raw UTC hour</span>
     <span class="chip"><b>v2026.07.15</b> — FPS route-structure value on the accurate glossary taxonomy (RTE_Type / SYSTEM-vs-DISP / route adoption), not the raw LSY ROUTE_TYPE</span>
     <span class="chip"><b>v2026.07.14</b> — airline portfolio (wet-lease 6E/VA + registration country A7/9H) · dispatch manpower per team · QR / Executive / FPS audience selector · FPS route-structure value</span>
     <span class="chip"><b>+ VP Brief</b> — CSV export → engine, with reconciliation checklist</span>
@@ -396,13 +397,13 @@
     <div class="flow f-green" style="margin-bottom:16px">
       <div class="stage"><span class="k">PROCESSING</span><span class="v">wall-clock UNION of [CALC_TIME, CALC_TIME+ELAPSED_TIME] per dispatcher</span></div>
       <div class="arw">→</div>
-      <div class="stage"><span class="k">WINDOW</span><span class="v">12 h × active LOCAL-time roster blocks · Doha UTC+3</span></div>
+      <div class="stage"><span class="k">WINDOW</span><span class="v">12 h × active LOCAL-time roster blocks · per-team · Doha UTC+3</span></div>
       <div class="arw">→</div>
       <div class="stage"><span class="k">IDLE</span><span class="v">window − processing → per-shift staffing signal</span></div>
     </div>
     <ul class="tight">
       <li><b>Processing = interval union, not Σ&nbsp;ELAPSED.</b> Each dispatcher's <code>[CALC_TIME, CALC_TIME&nbsp;+&nbsp;ELAPSED_TIME]</code> intervals are merged on the wall clock, so parallel SUFFIX/route calculations count once. A plain Σ&nbsp;ELAPSED over-counts by <b>~26.5%</b> on the reference dataset.</li>
-      <li><b>Working window = local-time roster blocks.</b> 12&nbsp;h per active block, Doha local (UTC+3): day <b>06:00–18:00</b>, night <b>18:00–06:00</b>. The night shift is <b>one block across midnight</b> — never split per calendar day.</li>
+      <li><b>Working window = local-time roster blocks, per team.</b> 12&nbsp;h per active block, Doha local (UTC+3). The two teams run different rosters: <b>QR DSP</b> day <b>08:00–20:00</b> / night <b>20:00–08:00</b>; <b>FPS</b> day <b>06:00–18:00</b> / night <b>18:00–06:00</b>. Each user's block boundary follows <i>their own</i> roster. The night shift is <b>one block across midnight</b> — never split per calendar day, and never counted as two nights.</li>
       <li><b>ATS actions folded in.</b> ATS_HISTORY filing/send actions enter as point events, surfaced in a dedicated <b>"ATS Actions"</b> column alongside the calc workload.</li>
       <li><b>Idle = window − processing</b>, reported per dispatcher per shift.</li>
     </ul>

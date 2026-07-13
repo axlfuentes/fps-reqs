@@ -439,7 +439,7 @@ window.__VP_PAYLOAD = null;
       <div class="wx-rail"><b>What AutoPerf shows</b></div>
       <div class="wx-body">
         <p style="margin-bottom:8px;"><b data-vp="derived.manpower_label">—</b></p>
-        <p>The Dispatcher Efficiency view works in real <b>12-hour Doha roster shifts</b> (day 06:00–18:00, night 18:00–06:00 local). <b>Working window</b> = the rostered hours with activity. <b>Processing</b> = wall-clock time the optimizer was actually computing, with parallel calculations merged so they count once. This period, merging removed a <b data-vp="capacity.parallel_overcount_corrected_pct" data-fmt="pct">—</b> over-count that naïve summing would have reported.</p>
+        <p>The Dispatcher Efficiency view works in real <b>12-hour Doha roster shifts</b>, using each team's own roster (Doha local): <b>QR DSP</b> 08:00–20:00 day / 20:00–08:00 night, <b>FPS</b> 06:00–18:00 day / 18:00–06:00 night. A night shift is <b>one block across midnight</b>, never counted as two. <b>Working window</b> = the rostered hours with activity. <b>Processing</b> = wall-clock time the optimizer was actually computing, with parallel calculations merged so they count once. This period, merging removed a <b data-vp="capacity.parallel_overcount_corrected_pct" data-fmt="pct">—</b> over-count that naïve summing would have reported.</p>
         <div class="readout">
           <table>
             <caption>Dispatcher capacity · <span data-vp="derived.period_label">—</span> · <span class="fd">from pasted export</span> · parallel merge applied</caption>
